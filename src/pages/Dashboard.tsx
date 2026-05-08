@@ -71,10 +71,6 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Panorama Executivo</h1>
           <p className="text-slate-400 font-sans">Sincronizado há 2 minutos • Dados nacionais BR</p>
         </div>
-        <button className="bg-brand-blue text-white font-display font-bold text-sm px-6 py-3 rounded-xl shadow-[0_0_20px_rgba(86,141,255,0.3)] hover:scale-105 transition-all active:scale-95 flex items-center gap-2">
-          <TrendingUp className="w-4 h-4" />
-          Gerar Insights IA
-        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
