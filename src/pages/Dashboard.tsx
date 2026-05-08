@@ -40,8 +40,8 @@ const sectorData = [
   { name: 'Indústria', value: 24, color: '#f43f5e' },
 ];
 
-const StatCard = ({ title, value, change, icon: Icon, trend }: any) => (
-  <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-brand-blue/30 transition-all duration-500">
+const StatCard = React.memo(({ title, value, change, icon: Icon }: any) => (
+  <div className="glass-panel p-6 rounded-2xl relative overflow-hidden group hover:border-brand-blue/30 transition-all duration-500 will-change-transform">
     <div className="flex justify-between items-start mb-4">
       <div className="p-2.5 bg-brand-blue/10 rounded-xl">
         <Icon className="w-5 h-5 text-brand-blue" />
@@ -57,7 +57,7 @@ const StatCard = ({ title, value, change, icon: Icon, trend }: any) => (
     </div>
     <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-brand-blue/5 rounded-full blur-2xl group-hover:bg-brand-blue/10 transition-colors" />
   </div>
-);
+));
 
 interface DashboardProps {
   onSelectCompany: (company: any) => void;
@@ -126,7 +126,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                   stroke="#568dff" 
                   strokeWidth={3}
                   fillOpacity={1} 
-                  fill="url(#colorValue)" 
+                  fill="url(#colorValue)"
+                  animationDuration={800}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -146,8 +147,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                   <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${item.value}%` }}
-                    transition={{ duration: 1, ease: 'easeOut' }}
-                    className="h-full rounded-full"
+                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                    className="h-full rounded-full will-change-[width]"
                     style={{ backgroundColor: item.color }}
                   />
                 </div>

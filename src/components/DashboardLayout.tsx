@@ -25,11 +25,11 @@ interface SidebarItemProps {
   key?: string;
 }
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) => (
+const SidebarItem = React.memo(({ icon: Icon, label, active, onClick }: SidebarItemProps) => (
   <button 
     onClick={onClick}
     className={cn(
-      "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group",
+      "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
       active 
         ? "bg-brand-blue/10 text-brand-blue" 
         : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
@@ -44,7 +44,7 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) =
       />
     )}
   </button>
-);
+));
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -138,13 +138,13 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
           </div>
         </header>
 
-        {/* Page Area */}
-        <div className="p-10">
+        <div className="p-10 overflow-x-hidden">
           <motion.div
             key={currentPage}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="will-change-transform"
           >
             {children}
           </motion.div>

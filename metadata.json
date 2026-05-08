@@ -1,9 +1,7 @@
 {
   "name": "Nova Vision",
   "description": "Plataforma premium de inteligência empresarial para monitoramento e análise avançada de dados corporativos brasileiros.",
-  "requestFramePermissions": [
-    "geolocation"
-  ],
+  "requestFramePermissions": [],
   "majorCapabilities": [
     "Business Intelligence",
     "Data Analytics",

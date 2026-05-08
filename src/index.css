@@ -23,7 +23,7 @@
 
 @layer components {
   .glass-panel {
-    @apply bg-white/[0.03] backdrop-blur-2xl border border-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)];
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.05] shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)];
   }
 
   .glow-button {

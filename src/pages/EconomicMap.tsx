@@ -80,8 +80,8 @@ export default function EconomicMap() {
               key={i}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: i * 0.2 }}
-              className="absolute group cursor-pointer"
+              transition={{ delay: i * 0.1, duration: 0.3 }}
+              className="absolute group cursor-pointer will-change-transform"
               style={{ top: pin.top, left: pin.left }}
             >
               <div className="relative">
