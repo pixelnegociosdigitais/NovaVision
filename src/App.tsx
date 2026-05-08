@@ -10,6 +10,7 @@ import Admin from './pages/Admin';
 import Team from './pages/Team';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
+import TestMei from './pages/TestMei';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, 
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('login');
+  const [currentPage, setCurrentPage] = useState('test-mei');
 
   const renderPage = () => {
     const handleSelectCompany = (company: any) => {
@@ -42,6 +43,7 @@ export default function App() {
       case 'admin': return <Admin />;
       case 'profile': return <Profile />;
       case 'details': return <CompanyDetails />;
+      case 'test-mei': return <TestMei />;
       default: return <Dashboard onSelectCompany={handleSelectCompany} />;
     }
   };
