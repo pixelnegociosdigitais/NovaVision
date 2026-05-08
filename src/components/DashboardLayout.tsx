@@ -22,6 +22,7 @@ interface SidebarItemProps {
   label: string;
   active?: boolean;
   onClick: () => void;
+  key?: string;
 }
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) => (

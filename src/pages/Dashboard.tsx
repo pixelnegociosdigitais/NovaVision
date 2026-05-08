@@ -21,6 +21,8 @@ import {
   Cell
 } from 'recharts';
 
+import { motion } from 'motion/react';
+
 const data = [
   { name: 'Jan', value: 400 },
   { name: 'Fev', value: 300 },
@@ -92,8 +94,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
             </div>
           </div>
           
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="h-[300px] w-full min-h-0 min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

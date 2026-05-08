@@ -12,6 +12,7 @@ import {
   Globe
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { cn } from '@/lib/utils';
 
 export default function EconomicMap() {
   return (

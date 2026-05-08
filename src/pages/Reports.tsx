@@ -17,7 +17,7 @@ import {
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 
-const ReportChip = ({ label }: { label: string }) => (
+const ReportChip = ({ label }: { label: string, key?: string }) => (
   <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-display font-bold text-slate-400 uppercase tracking-widest">{label}</span>
 );
 
