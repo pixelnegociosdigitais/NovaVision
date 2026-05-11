@@ -20,7 +20,6 @@ import {
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/contexts/PreferenceContext';
-import RegionalFocusWidget from './RegionalFocusWidget';
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -61,6 +60,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
   const { uf, cities, isFiltered, clearPreferences } = usePreferences();
   const menuItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'focus', icon: MapPin, label: 'Região de Foco' },
     { id: 'companies', icon: Building2, label: 'Empresas' },
     { id: 'analytics', icon: BarChart3, label: 'Analytics' },
     { id: 'alerts', icon: Bell, label: 'Central de Alertas' },
@@ -87,19 +87,13 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
 
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar pr-1">
           {menuItems.map((item) => (
-            <React.Fragment key={item.id}>
-              <SidebarItem
-                icon={item.icon}
-                label={item.label}
-                active={currentPage === item.id}
-                onClick={() => setCurrentPage(item.id)}
-              />
-              {item.id === 'dashboard' && (
-                <div className="my-4 px-2">
-                  <RegionalFocusWidget />
-                </div>
-              )}
-            </React.Fragment>
+            <SidebarItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              active={currentPage === item.id}
+              onClick={() => setCurrentPage(item.id)}
+            />
           ))}
         </nav>
 

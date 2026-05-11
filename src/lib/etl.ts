@@ -316,6 +316,7 @@ export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: s
 // ─────────────────────────────────────────
 export async function buscarCidadesPorEstado(uf: string) {
   if (!uf) return [];
+  console.log('Buscando cidades para UF:', uf);
   const { data, error } = await supabase
     .from('empresas')
     .select('municipio')
@@ -323,9 +324,25 @@ export async function buscarCidadesPorEstado(uf: string) {
     .not('municipio', 'is', null)
     .order('municipio', { ascending: true });
 
-  if (error) return [];
+  if (error) {
+    console.error('Erro ao buscar cidades:', error);
+    return [];
+  }
   
-  // Remover duplicatas no lado do cliente (PostgREST não tem SELECT DISTINCT on column facilmente sem RPC)
-  const cidades = Array.from(new Set(data.map(item => item.municipio.toUpperCase())));
-  return cidades;
+  if (!data || data.length === 0) {
+    console.log('Nenhuma cidade encontrada para UF:', uf);
+    return [];
+  }
+
+  // Remover duplicatas e normalizar
+  const cidadesSet = new Set<string>();
+  data.forEach(item => {
+    if (item.municipio) {
+      cidadesSet.add(item.municipio.toUpperCase().trim());
+    }
+  });
+  
+  const result = Array.from(cidadesSet);
+  console.log(`Encontradas ${result.length} cidades únicas para ${uf}`);
+  return result;
 }

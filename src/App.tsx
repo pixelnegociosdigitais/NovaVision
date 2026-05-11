@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import TestMei from './pages/TestMei';
 import ImportCenter from './pages/ImportCenter';
 import Plans from './pages/Plans';
+import FocusSettings from './pages/FocusSettings';
 import { PreferenceProvider } from './contexts/PreferenceContext';
 import type { Empresa } from './lib/types';
 
@@ -40,6 +41,7 @@ export default function App() {
       case 'team':      return <Team />;
       case 'admin':     return <Admin />;
       case 'profile':   return <Profile />;
+      case 'focus':     return <FocusSettings />;
       case 'plans':     return <Plans />;
       case 'details':   return <CompanyDetails empresa={selectedCompany} onBack={handleBackFromDetails} />;
       case 'test-mei':  return <TestMei />;
