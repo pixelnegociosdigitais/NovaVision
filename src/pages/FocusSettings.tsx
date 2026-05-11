@@ -3,7 +3,7 @@ import {
   Globe, MapPin, X, Plus, ChevronDown, Check, 
   Search, Shield, Info, Building2, TrendingUp,
   Loader2, ArrowRight, Calendar, UserCheck, Filter,
-  Save, CheckCircle2, LayoutGrid
+  Save, CheckCircle2, LayoutGrid, AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -103,6 +103,10 @@ export default function FocusSettings() {
   };
 
   const handleManualSave = async () => {
+    if (dataInicio && dataFim && new Date(dataFim) < new Date(dataInicio)) {
+      showSavedFeedback('Data de fim inválida');
+      return;
+    }
     setSaving(true);
     setLastSaved('Sincronizando Inteligência...');
     
@@ -340,13 +344,50 @@ export default function FocusSettings() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-widest text-center block">Início</label>
-                  <input type="date" value={dataInicio} onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
+                  <input 
+                    type="date" 
+                    value={dataInicio} 
+                    onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Início definido'); }} 
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark] hover:bg-white/10 transition-all" 
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-widest text-center block">Fim</label>
-                  <input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
+                  <input 
+                    type="date" 
+                    value={dataFim} 
+                    onChange={e => { setDataFim(e.target.value); showSavedFeedback('Fim definido'); }} 
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark] hover:bg-white/10 transition-all" 
+                  />
                 </div>
               </div>
+
+              {dataInicio && dataFim && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={cn(
+                    "mt-4 p-3 rounded-xl border flex items-center justify-between",
+                    new Date(dataFim) < new Date(dataInicio) 
+                      ? "bg-red-400/10 border-red-400/20 text-red-400" 
+                      : "bg-amber-400/10 border-amber-400/20 text-amber-400"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    {new Date(dataFim) < new Date(dataInicio) ? (
+                      <AlertTriangle className="w-4 h-4" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4" />
+                    )}
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      {new Date(dataFim) < new Date(dataInicio) 
+                        ? 'Data inválida' 
+                        : `${Math.ceil((new Date(dataFim).getTime() - new Date(dataInicio).getTime()) / (1000 * 60 * 60 * 24))} dias selecionados`}
+                    </span>
+                  </div>
+                  <Calendar className="w-4 h-4 opacity-30" />
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
