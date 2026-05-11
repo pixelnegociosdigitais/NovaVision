@@ -314,27 +314,25 @@ export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: s
 // ─────────────────────────────────────────
 // Buscar cidades únicas por estado no banco
 // ─────────────────────────────────────────
-export async function buscarCidadesSugestao(uf: string, termo: string) {
-  if (!uf || !termo || termo.length < 2) return [];
-  
-  const { data, error } = await supabase
-    .from('empresas')
-    .select('municipio')
-    .eq('uf', uf.toUpperCase())
-    .ilike('municipio', `%${termo}%`)
-    .limit(100);
-
-  if (error) {
-    console.error('Erro ao buscar sugestões de cidades:', error);
+// ─────────────────────────────────────────
+// Buscar todas as cidades de um estado via API do IBGE
+// ─────────────────────────────────────────
+export async function buscarCidadesIbge(uf: string) {
+  if (!uf) return [];
+  try {
+    const response = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios`);
+    if (!response.ok) throw new Error('Falha ao buscar cidades no IBGE');
+    const data = await response.json();
+    return data.map((item: any) => item.nome.toUpperCase()).sort();
+  } catch (err) {
+    console.error('Erro IBGE:', err);
     return [];
   }
+}
 
-  const cidadesSet = new Set<string>();
-  data?.forEach(item => {
-    if (item.municipio) {
-      cidadesSet.add(item.municipio.toUpperCase().trim());
-    }
-  });
-
-  return Array.from(cidadesSet).sort();
+export async function buscarCidadesSugestao(uf: string, termo: string) {
+  // Esta função agora será usada localmente no componente após carregar a lista do IBGE
+  // ou podemos manter a assinatura e fazer o fetch aqui se preferir.
+  // Para ser mais performático, vamos baixar a lista do estado uma vez no componente.
+  return []; 
 }
