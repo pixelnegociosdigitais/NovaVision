@@ -246,7 +246,7 @@ export async function buscarCidadesSugestao(uf: string, termo: string) {
 }
 
 export async function executarETL(config: ETLConfig, onLog: (m: string) => void): Promise<ETLResult> {
-  const result: ETLResult = { total_buscados: 0, total_salvos: 0, total_erros: 0, erros: [] };
+  const result: ETLResult = { total_buscados: 0, total_salvos: 0, total_erros: 0, erros: [], empresas: [] };
   try {
     onLog(`Buscando dados no Brasil.IO para ${config.municipio || config.uf || 'Brasil'}...`);
     const raw = await buscarDosBrasilIO(config);
@@ -257,16 +257,38 @@ export async function executarETL(config: ETLConfig, onLog: (m: string) => void)
       return result;
     }
 
-    onLog(`Transformando ${raw.length} registros...`);
-    const empresas = raw.map(transformarEmpresa);
+    onLog(`Transformando e enriquecendo ${raw.length} registros via BrasilAPI...`);
     
-    onLog(`Sincronizando com o banco de dados...`);
+    // Processamento em lotes para não estourar rate limit e ser mais rápido
+    const empresas: Empresa[] = [];
+    const BATCH_SIZE = 10; // Lotes pequenos para feedback visual constante
+    
+    for (let i = 0; i < raw.length; i += BATCH_SIZE) {
+      const loteRaw = raw.slice(i, i + BATCH_SIZE);
+      onLog(`Processando lote ${Math.floor(i/BATCH_SIZE) + 1} de ${Math.ceil(raw.length/BATCH_SIZE)}...`);
+      
+      const loteProcessado = await Promise.all(loteRaw.map(async (item: any) => {
+        try {
+          // Busca detalhes completos para cada CNPJ
+          const details = await buscarPorCnpjBrasilAPI(item.cnpj);
+          return transformarEmpresa({ ...item, ...details });
+        } catch (err) {
+          // Se falhar o detalhe, usa o que tem (mesmo que incompleto)
+          return transformarEmpresa(item);
+        }
+      }));
+      
+      empresas.push(...loteProcessado);
+    }
+    
+    onLog(`Sincronizando ${empresas.length} empresas com o banco de dados...`);
     const { salvos, erros } = await salvarEmpresasNoSupabase(empresas);
     
     result.total_salvos = salvos;
     result.total_erros = erros.length;
     result.erros = erros;
-    onLog(`Sucesso: ${salvos} empresas alimentadas.`);
+    result.empresas = empresas;
+    onLog(`Sucesso: ${salvos} empresas alimentadas e detalhadas.`);
   } catch (err: any) {
     onLog(`Erro na sincronização: ${err.message}`);
     result.erros.push(err.message);
