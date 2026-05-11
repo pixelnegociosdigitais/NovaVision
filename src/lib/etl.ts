@@ -1,6 +1,5 @@
 /**
  * Nova Vision - ETL Service
- * Pipeline: BrasilAPI → Transforma → Supabase
  */
 
 import { supabase } from './supabase';
@@ -123,6 +122,7 @@ export async function consultarEmpresas(filtros: {
   municipio?: string;
   municipios?: string[];
   eixo?: string;
+  eixos?: string[];
   cnae_prefix?: string;
   data_inicio?: string;
   data_fim?: string;
@@ -148,7 +148,13 @@ export async function consultarEmpresas(filtros: {
     query = query.ilike('municipio', `%${filtros.municipio}%`);
   }
 
-  if (filtros.eixo) query = query.eq('eixo_economico', filtros.eixo);
+  // Eixos econômicos (suporte a único ou múltiplos)
+  if (filtros.eixos && filtros.eixos.length > 0) {
+    query = query.in('eixo_economico', filtros.eixos);
+  } else if (filtros.eixo) {
+    query = query.eq('eixo_economico', filtros.eixo);
+  }
+
   if (filtros.data_inicio) query = query.gte('data_abertura', filtros.data_inicio);
   if (filtros.data_fim) query = query.lte('data_abertura', filtros.data_fim);
   if (filtros.apenas_mei) query = query.eq('opcao_pelo_mei', true);
@@ -168,6 +174,7 @@ export async function consultarEmpresas(filtros: {
 export async function buscarEstatisticas(filtros?: { 
   uf?: string; 
   municipios?: string[];
+  eixos?: string[];
   apenas_mei?: boolean;
   data_inicio?: string;
   data_fim?: string;
@@ -182,6 +189,9 @@ export async function buscarEstatisticas(filtros?: {
     if (filtros?.uf) query = query.eq('uf', filtros.uf.toUpperCase());
     if (filtros?.municipios && filtros.municipios.length > 0) {
       query = query.in('municipio', filtros.municipios.map(m => m.toUpperCase()));
+    }
+    if (filtros?.eixos && filtros.eixos.length > 0) {
+      query = query.in('eixo_economico', filtros.eixos);
     }
     if (filtros?.apenas_mei) query = query.eq('opcao_pelo_mei', true);
     if (filtros?.data_inicio) query = query.gte('data_abertura', filtros.data_inicio);

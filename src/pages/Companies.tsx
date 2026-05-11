@@ -49,6 +49,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
     apenasMei: prefMei, 
     dataInicio: prefStart, 
     dataFim: prefEnd,
+    eixos: prefEixos,
     isFiltered: prefActive 
   } = usePreferences();
   const [empresas, setEmpresas]       = useState<Empresa[]>([]);
@@ -73,6 +74,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
         uf:         prefUf || uf || undefined,
         municipios: prefCities.length > 0 ? prefCities : undefined,
         eixo:       eixo  || undefined,
+        eixos:      prefEixos.length > 0 ? prefEixos : undefined,
         apenas_mei: prefMei || apenasMei || undefined,
         data_inicio: prefStart || undefined,
         data_fim:    prefEnd || undefined,
@@ -86,7 +88,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
     } finally {
       setLoading(false);
     }
-  }, [busca, uf, prefUf, prefCities, prefMei, prefStart, prefEnd, eixo, apenasMei, pagina]);
+  }, [busca, uf, prefUf, prefCities, prefMei, prefStart, prefEnd, prefEixos, eixo, apenasMei, pagina]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
@@ -189,14 +191,20 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
 
                     {/* Eixo */}
                     <div className="space-y-2">
-                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">Eixo Econômico</label>
+                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">
+                        Setor {prefEixos.length > 0 && <span className="text-brand-cyan text-[8px] ml-1">(Foco Ativo)</span>}
+                      </label>
                       <div className="relative">
                         <select
                           value={eixo}
+                          disabled={prefEixos.length > 0}
                           onChange={e => { setEixo(e.target.value); setPagina(1); }}
-                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black"
+                          className={cn(
+                            "w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black",
+                            prefEixos.length > 0 && "opacity-50 cursor-not-allowed border-brand-cyan/30"
+                          )}
                         >
-                          <option value="">Todos os eixos</option>
+                          <option value="">{prefEixos.length > 0 ? `Múltiplos (${prefEixos.length})` : 'Todos os eixos'}</option>
                           {EIXOS.map(e => <option key={e} value={e}>{e}</option>)}
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />

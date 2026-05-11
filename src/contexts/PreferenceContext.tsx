@@ -6,11 +6,13 @@ interface PreferenceContextType {
   apenasMei: boolean;
   dataInicio: string;
   dataFim: string;
+  eixos: string[];
   setUf: (uf: string) => void;
   setCities: (cities: string[]) => void;
   setApenasMei: (val: boolean) => void;
   setDataInicio: (val: string) => void;
   setDataFim: (val: string) => void;
+  setEixos: (val: string[]) => void;
   clearPreferences: () => void;
   isFiltered: boolean;
 }
@@ -23,6 +25,7 @@ export function PreferenceProvider({ children }: { children: React.ReactNode }) 
   const [apenasMei, setApenasMeiState] = useState<boolean>(false);
   const [dataInicio, setDataInicioState] = useState<string>('');
   const [dataFim, setDataFimState] = useState<string>('');
+  const [eixos, setEixosState] = useState<string[]>([]);
 
   // Carregar do localStorage no início
   useEffect(() => {
@@ -31,6 +34,7 @@ export function PreferenceProvider({ children }: { children: React.ReactNode }) 
     const savedMei = localStorage.getItem('nv_pref_mei');
     const savedStart = localStorage.getItem('nv_pref_start');
     const savedEnd = localStorage.getItem('nv_pref_end');
+    const savedEixos = localStorage.getItem('nv_pref_eixos');
     
     if (savedUf) setUfState(savedUf);
     if (savedMei) setApenasMeiState(savedMei === 'true');
@@ -38,11 +42,10 @@ export function PreferenceProvider({ children }: { children: React.ReactNode }) 
     if (savedEnd) setDataFimState(savedEnd);
     
     if (savedCities) {
-      try {
-        setCitiesState(JSON.parse(savedCities));
-      } catch (e) {
-        console.error('Erro ao carregar cidades preferidas:', e);
-      }
+      try { setCitiesState(JSON.parse(savedCities)); } catch (e) { console.error(e); }
+    }
+    if (savedEixos) {
+      try { setEixosState(JSON.parse(savedEixos)); } catch (e) { console.error(e); }
     }
   }, []);
 
@@ -76,25 +79,32 @@ export function PreferenceProvider({ children }: { children: React.ReactNode }) 
     localStorage.setItem('nv_pref_end', val);
   };
 
+  const setEixos = (val: string[]) => {
+    setEixosState(val);
+    localStorage.setItem('nv_pref_eixos', JSON.stringify(val));
+  };
+
   const clearPreferences = () => {
     setUfState('');
     setCitiesState([]);
     setApenasMeiState(false);
     setDataInicioState('');
     setDataFimState('');
+    setEixosState([]);
     localStorage.removeItem('nv_pref_uf');
     localStorage.removeItem('nv_pref_cities');
     localStorage.removeItem('nv_pref_mei');
     localStorage.removeItem('nv_pref_start');
     localStorage.removeItem('nv_pref_end');
+    localStorage.removeItem('nv_pref_eixos');
   };
 
-  const isFiltered = !!uf || apenasMei || !!dataInicio || !!dataFim;
+  const isFiltered = !!uf || apenasMei || !!dataInicio || !!dataFim || eixos.length > 0;
 
   return (
     <PreferenceContext.Provider value={{ 
-      uf, cities, apenasMei, dataInicio, dataFim,
-      setUf, setCities, setApenasMei, setDataInicio, setDataFim,
+      uf, cities, apenasMei, dataInicio, dataFim, eixos,
+      setUf, setCities, setApenasMei, setDataInicio, setDataFim, setEixos,
       clearPreferences, isFiltered 
     }}>
       {children}

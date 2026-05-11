@@ -3,7 +3,7 @@ import {
   Globe, MapPin, X, Plus, ChevronDown, Check, 
   Search, Shield, Info, Building2, TrendingUp,
   Loader2, ArrowRight, Calendar, UserCheck, Filter,
-  Save, CheckCircle2
+  Save, CheckCircle2, LayoutGrid
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -13,10 +13,12 @@ import { buscarCidadesIbge } from '@/lib/etl';
 const UFS = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
   'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];
 
+const EIXOS_LIST = ['Comércio', 'Indústria', 'Serviços', 'Agronegócio', 'Tecnologia', 'Saúde', 'Educação', 'Construção', 'Financeiro', 'Turismo'];
+
 export default function FocusSettings() {
   const { 
-    uf, cities, apenasMei, dataInicio, dataFim,
-    setUf, setCities, setApenasMei, setDataInicio, setDataFim,
+    uf, cities, apenasMei, dataInicio, dataFim, eixos,
+    setUf, setCities, setApenasMei, setDataInicio, setDataFim, setEixos,
     clearPreferences 
   } = usePreferences();
 
@@ -29,7 +31,6 @@ export default function FocusSettings() {
   const [saving, setSaving] = useState(false);
   const suggestionRef = useRef<HTMLDivElement>(null);
 
-  // Mostrar feedback de salvamento automático
   const showSavedFeedback = (field: string) => {
     setLastSaved(field);
     setTimeout(() => setLastSaved(null), 2000);
@@ -93,6 +94,14 @@ export default function FocusSettings() {
     showSavedFeedback('Cidade removida');
   };
 
+  const toggleEixo = (eixo: string) => {
+    const newEixos = eixos.includes(eixo)
+      ? eixos.filter(e => e !== eixo)
+      : [...eixos, eixo];
+    setEixos(newEixos);
+    showSavedFeedback(newEixos.includes(eixo) ? `Eixo ${eixo} selecionado` : `Eixo ${eixo} removido`);
+  };
+
   const handleManualSave = () => {
     setSaving(true);
     setTimeout(() => {
@@ -103,10 +112,11 @@ export default function FocusSettings() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
+      {/* Header com botões de ação */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Foco Econômico Regional</h1>
-          <p className="text-slate-400 font-sans">Configurações globais salvas automaticamente para toda a plataforma.</p>
+          <p className="text-slate-400 font-sans">Ajuste os filtros globais para segmentar a inteligência de dados.</p>
         </div>
         <div className="flex items-center gap-3">
           <AnimatePresence>
@@ -133,7 +143,7 @@ export default function FocusSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8 space-y-6">
           
-          {/* SEÇÃO 1: LOCALIZAÇÃO */}
+          {/* 1. LOCALIZAÇÃO */}
           <div className="glass-panel p-8 rounded-[2.5rem] space-y-8 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
               <Globe className="w-32 h-32 text-brand-blue" />
@@ -144,28 +154,21 @@ export default function FocusSettings() {
                 <MapPin className="text-brand-blue w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-white text-lg">Área de Atuação</h3>
-                <p className="text-slate-500 text-sm">Estado e municípios onde a inteligência será aplicada.</p>
+                <h3 className="font-display font-bold text-white text-lg">Área Geográfica</h3>
+                <p className="text-slate-500 text-sm">Estado e municípios prioritários.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
               <div className="space-y-3">
-                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  Estado Prioritário
-                </label>
+                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em]">Estado</label>
                 <div className="relative">
                   <select
                     value={uf}
-                    onChange={e => { 
-                      setUf(e.target.value); 
-                      setCities([]); 
-                      setCityInput(''); 
-                      showSavedFeedback('Estado alterado');
-                    }}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black appearance-none cursor-pointer hover:bg-white/[0.08]"
+                    onChange={e => { setUf(e.target.value); setCities([]); setCityInput(''); showSavedFeedback('Estado alterado'); }}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black appearance-none cursor-pointer"
                   >
-                    <option value="">Brasil Completo</option>
+                    <option value="">Brasil (Visão Geral)</option>
                     {UFS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
                   <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
@@ -173,42 +176,25 @@ export default function FocusSettings() {
               </div>
 
               <div className="space-y-3 relative" ref={suggestionRef}>
-                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  Adicionar Cidades
-                  {loadingCities && <Loader2 className="w-3 h-3 animate-spin text-brand-blue" />}
-                </label>
+                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em]">Cidades</label>
                 <div className="relative group">
-                  <Search className={cn(
-                    "absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors",
-                    uf && !loadingCities ? "text-brand-purple" : "text-slate-700"
-                  )} />
+                  <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors", uf ? "text-brand-purple" : "text-slate-700")} />
                   <input
-                    type="text"
-                    value={cityInput}
-                    onChange={e => setCityInput(e.target.value)}
-                    disabled={!uf || loadingCities}
-                    placeholder={!uf ? "Selecione o estado" : loadingCities ? "Sincronizando..." : "Digite para buscar..."}
+                    type="text" value={cityInput} onChange={e => setCityInput(e.target.value)}
+                    disabled={!uf || loadingCities} placeholder={!uf ? "Selecione o estado" : "Buscar cidade..."}
                     className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/40 transition-all placeholder:text-slate-600 disabled:opacity-30"
                   />
                 </div>
-
                 <AnimatePresence>
                   {showSuggestions && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                       className="absolute z-50 left-0 right-0 top-full mt-2 bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-[0_40px_100px_rgba(0,0,0,1)] overflow-hidden"
                     >
-                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
+                      <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
                         {suggestions.map((s) => (
-                          <button
-                            key={s} onClick={() => handleAddCity(s)}
-                            className="w-full flex items-center justify-between px-6 py-4 text-sm text-slate-300 hover:bg-brand-purple/10 hover:text-white transition-all text-left group border-b border-white/5 last:border-0"
-                          >
-                            <span className="flex items-center gap-3">
-                              <MapPin className="w-4 h-4 text-slate-600 group-hover:text-brand-purple" />
-                              {s}
-                            </span>
-                            <Plus className="w-4 h-4 opacity-0 group-hover:opacity-100 text-brand-purple" />
+                          <button key={s} onClick={() => handleAddCity(s)} className="w-full flex items-center justify-between px-6 py-4 text-sm text-slate-300 hover:bg-brand-purple/10 hover:text-white transition-all text-left group">
+                            {s} <Plus className="w-4 h-4 opacity-0 group-hover:opacity-100 text-brand-purple" />
                           </button>
                         ))}
                       </div>
@@ -220,172 +206,168 @@ export default function FocusSettings() {
 
             <AnimatePresence mode="wait">
               {uf && (
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="pt-6 border-t border-white/5 space-y-4"
-                >
-                  <div className="flex justify-between items-center">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cidades no Foco Ativo ({cities.length})</p>
-                    {cities.length > 0 && (
-                      <button 
-                        onClick={() => { setCities([]); showSavedFeedback('Cidades removidas'); }}
-                        className="text-[10px] text-slate-500 hover:text-red-400 transition-colors uppercase font-bold"
-                      >
-                        Limpar Cidades
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2.5">
-                    {cities.length > 0 ? (
-                      cities.map(c => (
-                        <motion.span
-                          key={c} layout initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-xl text-xs font-bold uppercase tracking-wider group hover:bg-brand-purple/20 transition-all"
-                        >
-                          {c}
-                          <button onClick={() => removeCity(c)} className="text-brand-purple/40 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
-                        </motion.span>
-                      ))
-                    ) : (
-                      <div className="p-10 bg-white/[0.02] border border-dashed border-white/5 rounded-3xl w-full flex flex-col items-center justify-center text-slate-700">
-                        <MapPin className="w-8 h-8 mb-2 opacity-10" />
-                        <p className="text-xs italic">Nenhuma cidade específica. O foco será em todo o estado de {uf}.</p>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
+                <div className="pt-6 border-t border-white/5 flex flex-wrap gap-2.5">
+                  {cities.length > 0 ? (
+                    cities.map(c => (
+                      <span key={c} className="inline-flex items-center gap-2 px-4 py-2 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-xl text-[10px] font-bold uppercase tracking-wider">
+                        {c} <button onClick={() => removeCity(c)} className="hover:text-white"><X className="w-3.5 h-3.5" /></button>
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-600 italic">Filtrando todo o estado de {uf}.</p>
+                  )}
+                </div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* SEÇÃO 2: PREFERÊNCIAS AVANÇADAS */}
+          {/* 2. EIXO ECONÔMICO (NOVO) */}
+          <div className="glass-panel p-8 rounded-[2.5rem] space-y-8">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-brand-cyan/10 flex items-center justify-center">
+                <LayoutGrid className="text-brand-cyan w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-white text-lg">Eixos Econômicos</h3>
+                <p className="text-slate-500 text-sm">Selecione um ou mais setores para filtrar os resultados.</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {EIXOS_LIST.map((eixo) => {
+                const active = eixos.includes(eixo);
+                return (
+                  <button
+                    key={eixo}
+                    onClick={() => toggleEixo(eixo)}
+                    className={cn(
+                      "p-4 rounded-2xl border transition-all text-center space-y-2 group",
+                      active 
+                        ? "bg-brand-cyan/10 border-brand-cyan/40 text-brand-cyan shadow-lg shadow-brand-cyan/5" 
+                        : "bg-white/3 border-white/5 text-slate-500 hover:bg-white/5 hover:text-slate-300"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-8 h-8 rounded-lg mx-auto flex items-center justify-center transition-colors",
+                      active ? "bg-brand-cyan/20" : "bg-white/5"
+                    )}>
+                      {active ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                    </div>
+                    <span className="block text-[10px] font-bold uppercase tracking-widest">{eixo}</span>
+                  </button>
+                );
+              })}
+            </div>
+            
+            {eixos.length > 0 && (
+              <div className="flex justify-between items-center pt-4 border-t border-white/5">
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                  {eixos.length} eixo(s) selecionado(s)
+                </p>
+                <button onClick={() => { setEixos([]); showSavedFeedback('Eixos limpos'); }} className="text-[10px] text-red-400 hover:underline font-bold uppercase">Remover Filtro Setorial</button>
+              </div>
+            )}
+          </div>
+
+          {/* 3. PORTE E PERÍODO */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6 group hover:border-emerald-500/20 transition-all">
+            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 flex items-center justify-center">
                   <UserCheck className="text-emerald-400 w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-lg">Perfil Empresarial</h3>
-                  <p className="text-slate-500 text-sm">Filtro por porte de negócio.</p>
+                  <h3 className="font-display font-bold text-white text-lg">Porte da Empresa</h3>
+                  <p className="text-slate-500 text-sm">Filtro por categoria MEI.</p>
                 </div>
               </div>
-
               <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.08] transition-all">
                 <div>
                   <p className="font-display font-bold text-white text-sm">Apenas MEI</p>
-                  <p className="text-xs text-slate-500">Microempreendedores Individuais</p>
+                  <p className="text-xs text-slate-500">Excluir outras naturezas</p>
                 </div>
                 <button 
-                  onClick={() => { 
-                    setApenasMei(!apenasMei); 
-                    showSavedFeedback(apenasMei ? 'Todos os portes' : 'Filtro MEI ativo');
-                  }}
-                  className={cn(
-                    "relative w-12 h-6 rounded-full transition-all duration-300",
-                    apenasMei ? "bg-emerald-400" : "bg-white/10"
-                  )}
+                  onClick={() => { setApenasMei(!apenasMei); showSavedFeedback(apenasMei ? 'Todos os portes' : 'Apenas MEI ativo'); }}
+                  className={cn("relative w-12 h-6 rounded-full transition-all duration-300", apenasMei ? "bg-emerald-400" : "bg-white/10")}
                 >
-                  <div className={cn(
-                    "absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-lg",
-                    apenasMei ? "left-7" : "left-1"
-                  )} />
+                  <div className={cn("absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md", apenasMei ? "left-7" : "left-1")} />
                 </button>
               </div>
             </div>
 
-            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6 group hover:border-amber-400/20 transition-all">
+            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 flex items-center justify-center">
                   <Calendar className="text-amber-400 w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-lg">Janela Temporal</h3>
-                  <p className="text-slate-500 text-sm">Filtrar por data de abertura.</p>
+                  <h3 className="font-display font-bold text-white text-lg">Cronograma</h3>
+                  <p className="text-slate-500 text-sm">Data de fundação.</p>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Data Inicial</label>
-                  <input 
-                    type="date" value={dataInicio}
-                    onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Início alterado'); }}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
-                  />
+                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest text-center block">Início</label>
+                  <input type="date" value={dataInicio} onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Data Final</label>
-                  <input 
-                    type="date" value={dataFim}
-                    onChange={e => { setDataFim(e.target.value); showSavedFeedback('Fim alterado'); }}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
-                  />
+                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest text-center block">Fim</label>
+                  <input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* COLUNA LATERAL */}
+        {/* COLUNA LATERAL: STATUS */}
         <div className="lg:col-span-4 space-y-6">
           <div className="glass-panel p-8 rounded-[3rem] bg-gradient-to-br from-brand-blue/10 to-brand-purple/10 border-brand-blue/20 sticky top-28">
-             <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-6">
+             <div className="flex items-center gap-2 mb-8 pb-6 border-b border-white/5">
                 <Shield className="w-5 h-5 text-brand-blue" />
                 <div>
-                   <h4 className="font-display font-bold text-white text-xs uppercase tracking-widest">Foco Configurado</h4>
-                   <p className="text-[10px] text-slate-500 font-medium">Status da Filtragem Global</p>
+                  <h4 className="font-display font-bold text-white text-[10px] uppercase tracking-[0.2em]">Filtros Ativos</h4>
+                  <p className="text-[9px] text-slate-500 font-medium">Configuração Global Nova Vision</p>
                 </div>
              </div>
              
              <div className="space-y-8">
                 <div className="space-y-3">
-                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Localização Ativa</p>
-                   <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <div className="w-12 h-12 rounded-xl bg-brand-blue text-white flex items-center justify-center font-display font-bold text-xl shadow-lg shadow-brand-blue/20">
-                         {uf || 'BR'}
-                      </div>
+                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Localização</p>
+                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center font-bold text-lg">{uf || 'BR'}</div>
                       <div>
-                        <p className="text-lg font-display font-bold text-white leading-none">{uf ? 'Foco Regional' : 'Visão Brasil'}</p>
-                        <p className="text-[11px] text-slate-500 font-medium mt-1">
-                          {cities.length > 0 ? `${cities.length} município(s)` : (uf ? 'Todas as cidades do estado' : 'Sem restrição geográfica')}
-                        </p>
+                        <p className="text-sm font-bold text-white">{uf ? 'Foco Regional' : 'Brasil Total'}</p>
+                        <p className="text-[10px] text-slate-500">{cities.length > 0 ? `${cities.length} cidade(s)` : (uf ? 'Estado Completo' : 'Nacional')}</p>
                       </div>
                    </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-1">
-                      <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Porte</p>
-                      <p className={cn("text-xs font-bold", apenasMei ? "text-emerald-400" : "text-white")}>
-                        {apenasMei ? 'MEI' : 'TODOS'}
-                      </p>
+                <div className="space-y-3">
+                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Setores (Eixos)</p>
+                   <div className="flex flex-wrap gap-1.5">
+                      {eixos.length > 0 ? (
+                        eixos.map(e => <span key={e} className="px-2 py-1 bg-brand-cyan/10 text-brand-cyan text-[9px] font-black uppercase rounded border border-brand-cyan/20">{e}</span>)
+                      ) : <span className="text-xs text-slate-600 italic">Todos os eixos</span>}
                    </div>
-                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-1">
-                      <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Período</p>
-                      <p className={cn("text-xs font-bold", dataInicio ? "text-amber-400" : "text-white")}>
-                        {dataInicio ? 'ATIVO' : 'LIVRE'}
-                      </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Porte</p>
+                      <p className={cn("text-xs font-bold", apenasMei ? "text-emerald-400" : "text-white")}>{apenasMei ? 'MEI' : 'TODOS'}</p>
+                   </div>
+                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Período</p>
+                      <p className={cn("text-xs font-bold", dataInicio ? "text-amber-400" : "text-white")}>{dataInicio ? 'ATIVO' : 'LIVRE'}</p>
                    </div>
                 </div>
              </div>
              
-             <div className="mt-12 space-y-4">
-                <div className="flex gap-4 p-4 bg-white/3 rounded-2xl">
-                   <CheckCircle2 className="w-5 h-5 text-brand-blue shrink-0" />
-                   <p className="text-[11px] text-slate-400 leading-relaxed">
-                     As alterações são salvas automaticamente em seu navegador para garantir agilidade.
-                   </p>
-                </div>
-                {(uf || apenasMei || dataInicio || dataFim) && (
-                  <button 
-                    onClick={clearPreferences}
-                    className="w-full py-4 rounded-2xl text-xs font-bold uppercase text-slate-500 border border-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all"
-                  >
-                    Resetar Todas as Preferências
-                  </button>
-                )}
-             </div>
+             {(uf || apenasMei || dataInicio || dataFim || eixos.length > 0) && (
+               <button onClick={clearPreferences} className="w-full mt-12 py-4 rounded-2xl text-[10px] font-black uppercase text-slate-500 border border-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all tracking-widest">
+                 Resetar Foco Global
+               </button>
+             )}
           </div>
         </div>
       </div>
