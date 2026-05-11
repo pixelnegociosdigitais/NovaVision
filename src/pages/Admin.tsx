@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck, Settings, Users, Database, Activity, Zap, Lock,
   Key, Server, Cloud, ChevronRight, MoreVertical, Loader2,
-  HardDrive, Globe, AlertCircle
+  HardDrive, Globe, AlertCircle, Trash2, Filter, CheckCircle2
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -41,6 +41,46 @@ export default function Admin() {
     }
     loadAdminStats();
   }, []);
+  
+  async function limparDadosAntigos() {
+    if (!confirm('Tem certeza que deseja apagar empresas importadas há mais de 90 dias?')) return;
+    setLoading(true);
+    try {
+      const data90 = new Date();
+      data90.setDate(data90.getDate() - 90);
+      const { error, count } = await supabase
+        .from('empresas')
+        .delete({ count: 'exact' })
+        .lt('importado_em', data90.toISOString());
+      
+      if (error) throw error;
+      alert(`Sucesso! ${count || 0} registros antigos foram removidos.`);
+      window.location.reload();
+    } catch (err: any) {
+      alert(`Erro: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function manterApenasRS() {
+    if (!confirm('Esta ação irá apagar TODAS as empresas que NÃO são do Rio Grande do Sul (RS). Continuar?')) return;
+    setLoading(true);
+    try {
+      const { error, count } = await supabase
+        .from('empresas')
+        .delete({ count: 'exact' })
+        .neq('uf', 'RS');
+      
+      if (error) throw error;
+      alert(`Sucesso! ${count || 0} registros de outros estados foram removidos.`);
+      window.location.reload();
+    } catch (err: any) {
+      alert(`Erro: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -183,6 +223,55 @@ export default function Admin() {
             </div>
          </div>
       </div>
+
+       {/* Maintenance Section */}
+       <div className="glass-panel p-8 rounded-[2.5rem] border-white/5 space-y-6">
+          <div className="flex items-center gap-4">
+             <div className="p-3 bg-red-400/10 rounded-2xl">
+                <Settings className="w-6 h-6 text-red-400" />
+             </div>
+             <div>
+                <h2 className="text-xl font-display font-bold text-white">Manutenção de Dados</h2>
+                <p className="text-sm text-slate-500 font-sans">Ferramentas para otimização de armazenamento e limpeza de base</p>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+             <button 
+               onClick={limparDadosAntigos}
+               disabled={loading}
+               className="flex items-center justify-between p-6 bg-white/5 rounded-[2rem] border border-white/5 hover:bg-red-400/5 hover:border-red-400/20 transition-all group disabled:opacity-50"
+             >
+                <div className="flex items-center gap-5">
+                   <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-red-400/10 transition-colors">
+                      <Trash2 className="w-6 h-6 text-slate-400 group-hover:text-red-400" />
+                   </div>
+                   <div className="text-left">
+                      <p className="text-white font-bold font-display">Limpar Dados Antigos</p>
+                      <p className="text-xs text-slate-500 font-medium mt-1">Remove empresas importadas há +90 dias</p>
+                   </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-red-400" />
+             </button>
+
+             <button 
+               onClick={manterApenasRS}
+               disabled={loading}
+               className="flex items-center justify-between p-6 bg-white/5 rounded-[2rem] border border-white/5 hover:bg-brand-blue/5 hover:border-brand-blue/20 transition-all group disabled:opacity-50"
+             >
+                <div className="flex items-center gap-5">
+                   <div className="p-4 bg-white/5 rounded-2xl group-hover:bg-brand-blue/10 transition-colors">
+                      <Filter className="w-6 h-6 text-slate-400 group-hover:text-brand-blue" />
+                   </div>
+                   <div className="text-left">
+                      <p className="text-white font-bold font-display">Manter Apenas RS</p>
+                      <p className="text-xs text-slate-500 font-medium mt-1">Remove registros de outros estados da base</p>
+                   </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-brand-blue" />
+             </button>
+          </div>
+       </div>
     </div>
   );
 }
