@@ -225,7 +225,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       data_inicio: dataInicio || undefined,
       data_fim: dataFim || undefined,
       apenas_mei: apenasMei,
-      limit: 200
+      limit: 50
     }, (m) => console.log(`[Dashboard Sync] ${m}`));
     await carregar();
   };

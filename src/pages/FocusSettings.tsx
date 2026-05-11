@@ -130,7 +130,7 @@ export default function FocusSettings() {
           data_inicio: dataInicio || undefined,
           data_fim: dataFim || undefined,
           apenas_mei: apenasMei,
-          limit: 150
+          limit: 50
         }, (msg) => {
           console.log(`[Focus Sync] ${msg}`);
           if (msg.includes('Sucesso')) setLastSaved('Dashboard Alimentado!');

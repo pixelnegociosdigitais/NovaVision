@@ -111,13 +111,30 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   return data.results || data || [];
 }
 
-export async function buscarPorCnpjBrasilAPI(cnpj: string): Promise<any> {
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+export async function buscarPorCnpjBrasilAPI(cnpj: string, retries = 3): Promise<any> {
   const cleanCnpj = cnpj.replace(/\D/g, '');
-  // Usando o proxy do Vite configurado em vite.config.ts para evitar erro de CORS
-  const response = await fetch(`/api/brasilapi/api/cnpj/v1/${cleanCnpj}`);
+  const url = `/api/brasilapi/api/cnpj/v1/${cleanCnpj}`;
   
-  if (!response.ok) throw new Error('Empresa não encontrada na BrasilAPI');
-  return response.json();
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      
+      if (response.status === 429) {
+        const wait = Math.pow(2, i) * 1000;
+        console.warn(`Rate limit atingido na BrasilAPI. Aguardando ${wait}ms...`);
+        await sleep(wait);
+        continue;
+      }
+      
+      if (!response.ok) throw new Error(`Status ${response.status}`);
+      return await response.json();
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await sleep(1000);
+    }
+  }
 }
 
 export async function salvarEmpresasNoSupabase(empresas: Empresa[]): Promise<{ salvos: number; erros: string[] }> {
@@ -261,26 +278,20 @@ export async function executarETL(config: ETLConfig, onLog: (m: string) => void)
 
     onLog(`Transformando e enriquecendo ${raw.length} registros via BrasilAPI...`);
     
-    // Processamento em lotes para não estourar rate limit e ser mais rápido
     const empresas: Empresa[] = [];
-    const BATCH_SIZE = 10; // Lotes pequenos para feedback visual constante
-    
-    for (let i = 0; i < raw.length; i += BATCH_SIZE) {
-      const loteRaw = raw.slice(i, i + BATCH_SIZE);
-      onLog(`Processando lote ${Math.floor(i/BATCH_SIZE) + 1} de ${Math.ceil(raw.length/BATCH_SIZE)}...`);
+    for (let i = 0; i < raw.length; i++) {
+      const item = raw[i];
+      onLog(`[${i + 1}/${raw.length}] Detalhando: ${item.razao_social || item.cnpj}...`);
       
-      const loteProcessado = await Promise.all(loteRaw.map(async (item: any) => {
-        try {
-          // Busca detalhes completos para cada CNPJ
-          const details = await buscarPorCnpjBrasilAPI(item.cnpj);
-          return transformarEmpresa({ ...item, ...details });
-        } catch (err) {
-          // Se falhar o detalhe, usa o que tem (mesmo que incompleto)
-          return transformarEmpresa(item);
-        }
-      }));
-      
-      empresas.push(...loteProcessado);
+      try {
+        const details = await buscarPorCnpjBrasilAPI(item.cnpj);
+        empresas.push(transformarEmpresa({ ...item, ...details }));
+        // Delay sutil para evitar rate limit
+        await sleep(300);
+      } catch (err) {
+        console.error(`Erro ao detalhar ${item.cnpj}:`, err);
+        empresas.push(transformarEmpresa(item));
+      }
     }
     
     onLog(`Sincronizando ${empresas.length} empresas com o banco de dados...`);
