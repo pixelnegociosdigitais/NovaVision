@@ -12,41 +12,38 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 import TestMei from './pages/TestMei';
 import ImportCenter from './pages/ImportCenter';
-import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Building2, 
-  Lock, 
-  Mail, 
-  ChevronRight, 
-  ArrowRight,
-  TrendingUp,
-  MapPin,
-  ShieldCheck,
-  Zap
-} from 'lucide-react';
+import Plans from './pages/Plans';
+import type { Empresa } from './lib/types';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
+  const [selectedCompany, setSelectedCompany] = useState<Empresa | null>(null);
+
+  const handleSelectCompany = (company: Empresa) => {
+    setSelectedCompany(company);
+    setCurrentPage('details');
+  };
+
+  const handleBackFromDetails = () => {
+    setCurrentPage('companies');
+  };
 
   const renderPage = () => {
-    const handleSelectCompany = (company: any) => {
-      setCurrentPage('details');
-    };
-
     switch (currentPage) {
       case 'dashboard': return <Dashboard onSelectCompany={handleSelectCompany} />;
       case 'companies': return <Companies onSelectCompany={handleSelectCompany} />;
-      case 'analytics': return <Dashboard onSelectCompany={handleSelectCompany} />; // Reuse for now
-      case 'alerts': return <Alerts />;
-      case 'reports': return <Reports />;
-      case 'map': return <EconomicMap />;
-      case 'team': return <Team />;
-      case 'admin': return <Admin />;
-      case 'profile': return <Profile />;
-      case 'details': return <CompanyDetails />;
-      case 'test-mei': return <TestMei />;
-      case 'import': return <ImportCenter />;
-      default: return <Dashboard onSelectCompany={handleSelectCompany} />;
+      case 'analytics': return <Dashboard onSelectCompany={handleSelectCompany} />;
+      case 'alerts':    return <Alerts />;
+      case 'reports':   return <Reports />;
+      case 'map':       return <EconomicMap />;
+      case 'team':      return <Team />;
+      case 'admin':     return <Admin />;
+      case 'profile':   return <Profile />;
+      case 'plans':     return <Plans />;
+      case 'details':   return <CompanyDetails empresa={selectedCompany} onBack={handleBackFromDetails} />;
+      case 'test-mei':  return <TestMei />;
+      case 'import':    return <ImportCenter />;
+      default:          return <Dashboard onSelectCompany={handleSelectCompany} />;
     }
   };
 

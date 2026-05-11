@@ -124,6 +124,32 @@ ORDER BY total DESC;
 -- ─────────────────────────────────────────
 -- View para crescimento por mês
 -- ─────────────────────────────────────────
+-- ─────────────────────────────────────────
+-- Tabela de Alertas Inteligentes
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.alertas (
+  id                    UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  tipo                  TEXT NOT NULL CHECK (tipo IN ('cidade','estado','cnae','eixo')),
+  valor                 TEXT NOT NULL,
+  descricao             TEXT,
+  ativo                 BOOLEAN DEFAULT TRUE,
+  notificacao_email     BOOLEAN DEFAULT TRUE,
+  notificacao_dashboard BOOLEAN DEFAULT TRUE,
+  total_disparos        INTEGER DEFAULT 0,
+  ultimo_disparo        TIMESTAMPTZ,
+  criado_em             TIMESTAMPTZ DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.alertas ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Alertas públicos" ON public.alertas FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_alertas_tipo  ON public.alertas (tipo);
+CREATE INDEX IF NOT EXISTS idx_alertas_ativo ON public.alertas (ativo);
+
+-- ─────────────────────────────────────────
+-- View de crescimento mensal (mantida)
+-- ─────────────────────────────────────────
 CREATE OR REPLACE VIEW public.vw_crescimento_mensal AS
 SELECT
   TO_CHAR(data_abertura, 'YYYY-MM') AS mes,

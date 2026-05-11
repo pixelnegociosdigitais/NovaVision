@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Search,
   User,
-  Download
+  Download,
+  CreditCard
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
     { id: 'team', icon: Users, label: 'Equipe' },
     { id: 'admin', icon: ShieldCheck, label: 'Administrativo' },
     { id: 'import', icon: Download, label: 'Importar Dados' },
+    { id: 'plans', icon: CreditCard, label: 'Planos' },
   ];
 
   return (
