@@ -18,7 +18,7 @@ import { PreferenceProvider } from './contexts/PreferenceContext';
 import type { Empresa } from './lib/types';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState('focus');
   const [selectedCompany, setSelectedCompany] = useState<Empresa | null>(null);
 
   const handleSelectCompany = (company: Empresa) => {
@@ -51,7 +51,7 @@ export default function App() {
   };
 
   if (currentPage === 'login') {
-    return <Login onLogin={() => setCurrentPage('dashboard')} />;
+    return <Login onLogin={() => setCurrentPage('focus')} />;
   }
 
   return (

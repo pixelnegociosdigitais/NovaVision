@@ -59,8 +59,8 @@ interface LayoutProps {
 export default function DashboardLayout({ children, currentPage, setCurrentPage }: LayoutProps) {
   const { uf, cities, isFiltered, clearPreferences } = usePreferences();
   const menuItems = [
-    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'focus', icon: MapPin, label: 'Região de Foco' },
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'companies', icon: Building2, label: 'Empresas' },
     { id: 'analytics', icon: BarChart3, label: 'Analytics' },
     { id: 'alerts', icon: Bell, label: 'Central de Alertas' },
