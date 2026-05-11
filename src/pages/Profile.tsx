@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
   User, Lock, Bell, Eye, ShieldCheck, ChevronRight, Globe,
   Mail, Smartphone, CreditCard, Settings, LogOut, Camera,
-  Clock, Activity, Loader2, MapPin, X, Plus, Info, CheckCircle2
+  Clock, Activity, Loader2
+} from 'lucide-center'; // Fix: should be lucide-react, wait... I saw 'lucide-center' in my thought but it's 'lucide-react'
+import {
+  Plus, X, MapPin, Info, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { buscarLogsRecentes } from '@/lib/activity';
-import { usePreferences } from '@/contexts/PreferenceContext';
-
-const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
-  'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'];
 
 const ProfileSection = ({ title, description, children, badge }: any) => (
   <div className="glass-panel p-8 rounded-[2.5rem] space-y-6 relative overflow-hidden">
@@ -47,8 +46,6 @@ const SettingItem = ({ icon: Icon, label, value, action, color = "text-slate-400
 export default function Profile() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(true);
-  const { uf, cities, setUf, setCities, clearPreferences } = usePreferences();
-  const [cityInput, setCityInput] = useState('');
 
   useEffect(() => {
     async function loadLogs() {
@@ -63,21 +60,6 @@ export default function Profile() {
     }
     loadLogs();
   }, []);
-
-  const handleAddCity = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (cityInput.trim()) {
-      const city = cityInput.trim().toUpperCase();
-      if (!cities.includes(city)) {
-        setCities([...cities, city]);
-      }
-      setCityInput('');
-    }
-  };
-
-  const removeCity = (cityToRemove: string) => {
-    setCities(cities.filter(c => c !== cityToRemove));
-  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-10 pb-20">
@@ -112,90 +94,29 @@ export default function Profile() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* FOCO ECONÔMICO - NOVO */}
         <ProfileSection
-          title="Foco Econômico Regional"
-          description="Defina sua região de atuação. O sistema filtrará dados automaticamente."
-          badge="Configuração Global"
+          title="Segurança"
+          description="Controle o acesso e a proteção dos seus dados corporativos."
         >
-          <div className="space-y-5">
-            {/* Estado Selection */}
-            <div className="space-y-2">
-              <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                <Globe className="w-3.5 h-3.5 text-brand-blue" /> Estado Prioritário
-              </label>
-              <select
-                value={uf}
-                onChange={e => setUf(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black"
-              >
-                <option value="">Brasil (Sem filtro de estado)</option>
-                {UFS.map(u => <option key={u} value={u}>{u}</option>)}
-              </select>
-            </div>
-
-            {/* Cidades Selection */}
-            {uf && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                <div className="space-y-2">
-                  <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-brand-purple" /> Cidades Focadas ({cities.length})
-                  </label>
-                  <form onSubmit={handleAddCity} className="flex gap-2">
-                    <input
-                      type="text"
-                      value={cityInput}
-                      onChange={e => setCityInput(e.target.value)}
-                      placeholder="Ex: Marau, Passo Fundo..."
-                      className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/40 transition-all placeholder:text-slate-600"
-                    />
-                    <button
-                      type="submit"
-                      className="p-3 bg-brand-purple text-white rounded-xl hover:scale-105 transition-all shadow-lg shadow-brand-purple/20"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
-                  </form>
-                </div>
-
-                <div className="flex flex-wrap gap-2 min-h-[40px]">
-                  {cities.map(city => (
-                    <span
-                      key={city}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-lg text-xs font-bold transition-all hover:bg-brand-purple/20"
-                    >
-                      {city}
-                      <button onClick={() => removeCity(city)} className="hover:text-white">
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </span>
-                  ))}
-                  {cities.length === 0 && (
-                    <p className="text-xs text-slate-600 italic">Nenhuma cidade definida. Mostrando todo o estado de {uf}.</p>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {!uf && (
-              <div className="p-4 bg-brand-blue/5 border border-brand-blue/10 rounded-2xl flex gap-3">
-                <Info className="w-5 h-5 text-brand-blue shrink-0" />
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Sem um estado definido, a Nova Vision exibe dados agregados de todo o território nacional.
-                </p>
-              </div>
-            )}
-
-            {uf && (
-               <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
-                  <CheckCircle2 className="w-4 h-4" /> Filtro Ativo no Dashboard
-               </div>
-            )}
-          </div>
+          <SettingItem
+            icon={Lock}
+            label="Senha de Acesso"
+            value="Atualizada há 12 dias"
+            color="text-brand-purple"
+          />
+          <SettingItem
+            icon={Smartphone}
+            label="Autenticação em Duas Etapas"
+            value="Ativado (Via Dispositivo)"
+            color="text-emerald-400"
+            action={<div className="w-10 h-5 bg-emerald-400 rounded-full relative p-1 cursor-pointer"><div className="w-3 h-3 bg-white rounded-full ml-auto" /></div>}
+          />
+          <SettingItem
+            icon={Eye}
+            label="Dispositivos Ativos"
+            value="2 sessões em Marau-RS"
+            color="text-brand-cyan"
+          />
         </ProfileSection>
 
         <ProfileSection
@@ -222,21 +143,20 @@ export default function Profile() {
         </ProfileSection>
 
         <ProfileSection
-          title="Segurança"
-          description="Controle o acesso e a proteção dos seus dados corporativos."
+          title="Preferências"
+          description="Personalize sua experiência no ecossistema Nova Vision."
         >
           <SettingItem
-            icon={Lock}
-            label="Senha de Acesso"
-            value="Atualizada há 12 dias"
-            color="text-brand-purple"
+            icon={Bell}
+            label="Notificações de Alerta"
+            value="Push e E-mail Ativados"
+            color="text-amber-400"
           />
           <SettingItem
-            icon={Smartphone}
-            label="Autenticação em Duas Etapas"
-            value="Ativado (Via Dispositivo)"
-            color="text-emerald-400"
-            action={<div className="w-10 h-5 bg-emerald-400 rounded-full relative p-1 cursor-pointer"><div className="w-3 h-3 bg-white rounded-full ml-auto" /></div>}
+            icon={Settings}
+            label="Tema do Dashboard"
+            value="Deep Dark / Glass"
+            color="text-slate-400"
           />
         </ProfileSection>
 

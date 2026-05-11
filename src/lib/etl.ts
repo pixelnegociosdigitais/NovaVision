@@ -310,3 +310,22 @@ export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: s
     abertas_90d: abertas90.count || 0,
   };
 }
+
+// ─────────────────────────────────────────
+// Buscar cidades únicas por estado no banco
+// ─────────────────────────────────────────
+export async function buscarCidadesPorEstado(uf: string) {
+  if (!uf) return [];
+  const { data, error } = await supabase
+    .from('empresas')
+    .select('municipio')
+    .eq('uf', uf.toUpperCase())
+    .not('municipio', 'is', null)
+    .order('municipio', { ascending: true });
+
+  if (error) return [];
+  
+  // Remover duplicatas no lado do cliente (PostgREST não tem SELECT DISTINCT on column facilmente sem RPC)
+  const cidades = Array.from(new Set(data.map(item => item.municipio.toUpperCase())));
+  return cidades;
+}
