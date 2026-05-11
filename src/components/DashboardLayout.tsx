@@ -12,7 +12,8 @@ import {
   LogOut,
   HelpCircle,
   Search,
-  User
+  User,
+  Download
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -62,6 +63,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
     { id: 'map', icon: MapIcon, label: 'Mapa Econômico' },
     { id: 'team', icon: Users, label: 'Equipe' },
     { id: 'admin', icon: ShieldCheck, label: 'Administrativo' },
+    { id: 'import', icon: Download, label: 'Importar Dados' },
   ];
 
   return (

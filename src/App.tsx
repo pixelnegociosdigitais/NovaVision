@@ -11,6 +11,7 @@ import Team from './pages/Team';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
 import TestMei from './pages/TestMei';
+import ImportCenter from './pages/ImportCenter';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Building2, 
@@ -25,7 +26,7 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('test-mei');
+  const [currentPage, setCurrentPage] = useState('dashboard');
 
   const renderPage = () => {
     const handleSelectCompany = (company: any) => {
@@ -44,6 +45,7 @@ export default function App() {
       case 'profile': return <Profile />;
       case 'details': return <CompanyDetails />;
       case 'test-mei': return <TestMei />;
+      case 'import': return <ImportCenter />;
       default: return <Dashboard onSelectCompany={handleSelectCompany} />;
     }
   };
