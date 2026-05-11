@@ -126,7 +126,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onSelectCompany }: DashboardProps) {
-  const { uf, cities } = usePreferences();
+  const { uf, cities, apenasMei, dataInicio, dataFim } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [stats, setStats] = useState<Stats>({ total: 0, abertas_7d: 0, abertas_30d: 0, abertas_90d: 0, total_mei: 0 });
@@ -148,6 +148,9 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
         let query = q;
         if (uf) query = query.eq('uf', uf.toUpperCase());
         if (cities.length > 0) query = query.in('municipio', cities.map(c => c.toUpperCase()));
+        if (apenasMei) query = query.eq('opcao_pelo_mei', true);
+        if (dataInicio) query = query.gte('data_abertura', dataInicio);
+        if (dataFim) query = query.lte('data_abertura', dataFim);
         return query;
       };
 
@@ -209,7 +212,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
     } finally {
       setLoading(false);
     }
-  }, [uf, cities]);
+  }, [uf, cities, apenasMei, dataInicio, dataFim]);
 
   useEffect(() => { carregar(); }, [carregar]);
 

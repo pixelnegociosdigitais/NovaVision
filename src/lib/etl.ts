@@ -1,17 +1,11 @@
 /**
  * Nova Vision - ETL Service
  * Pipeline: BrasilAPI → Transforma → Supabase
- * 
- * Busca empresas em lote por município/CNAE/período
- * e persiste os dados no banco Supabase.
  */
 
 import { supabase } from './supabase';
 import { CNAE_EIXO_MAP, type Empresa, type ETLConfig, type ETLResult } from './types';
 
-// ─────────────────────────────────────────
-// Helper: Detectar Eixo Econômico pelo CNAE
-// ─────────────────────────────────────────
 export function detectarEixo(cnae: string | number | undefined): string {
   if (!cnae) return 'Outro';
   const codigo = String(cnae);
@@ -20,9 +14,6 @@ export function detectarEixo(cnae: string | number | undefined): string {
   return CNAE_EIXO_MAP[prefixo2] || CNAE_EIXO_MAP[prefixo1] || 'Outro';
 }
 
-// ─────────────────────────────────────────
-// Helper: Calcular Score Empresarial (0–100)
-// ─────────────────────────────────────────
 function calcularScore(empresa: any): number {
   let score = 50;
   if (empresa.descricao_situacao_cadastral === 'ATIVA') score += 20;
@@ -34,9 +25,6 @@ function calcularScore(empresa: any): number {
   return Math.min(score, 100);
 }
 
-// ─────────────────────────────────────────
-// Helper: Classificar Potencial Comercial
-// ─────────────────────────────────────────
 function classificarPotencial(score: number): string {
   if (score >= 80) return 'Alto';
   if (score >= 60) return 'Médio';
@@ -44,9 +32,6 @@ function classificarPotencial(score: number): string {
   return 'Mínimo';
 }
 
-// ─────────────────────────────────────────
-// Transformar dados brutos da BrasilAPI → Empresa
-// ─────────────────────────────────────────
 export function transformarEmpresa(raw: any): Empresa {
   const cnae = raw.cnae_fiscal || raw.cnae_fiscal_principal?.codigo;
   const score = calcularScore(raw);
@@ -89,23 +74,6 @@ export function transformarEmpresa(raw: any): Empresa {
   };
 }
 
-// ─────────────────────────────────────────
-// Busca em lote via BrasilAPI (por CNPJ individual — sem endpoint de listagem em lote)
-// Para buscar em lote real precisamos do Brasil.IO
-// ─────────────────────────────────────────
-export async function buscarPorCnpjBrasilAPI(cnpj: string): Promise<any> {
-  const clean = cnpj.replace(/\D/g, '');
-  const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${clean}`);
-  if (!response.ok) {
-    throw new Error(`BrasilAPI erro para CNPJ ${cnpj}: ${response.statusText}`);
-  }
-  return response.json();
-}
-
-// ─────────────────────────────────────────
-// Busca empresas do Brasil.IO (por município, CNAE, data)
-// Requer token autenticado
-// ─────────────────────────────────────────
 export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   const token = import.meta.env.VITE_BRASILIO_TOKEN;
   if (!token) throw new Error('Token Brasil.IO não configurado.');
@@ -137,104 +105,25 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   return data.results || data || [];
 }
 
-// ─────────────────────────────────────────
-// Salvar lista de empresas no Supabase (upsert por CNPJ)
-// ─────────────────────────────────────────
 export async function salvarEmpresasNoSupabase(empresas: Empresa[]): Promise<{ salvos: number; erros: string[] }> {
   const erros: string[] = [];
   let salvos = 0;
-
-  // Processa em lotes de 50 para evitar limite de payload
   const BATCH_SIZE = 50;
   for (let i = 0; i < empresas.length; i += BATCH_SIZE) {
     const lote = empresas.slice(i, i + BATCH_SIZE);
-
-    const { error } = await supabase
-      .from('empresas')
-      .upsert(lote, {
-        onConflict: 'cnpj',
-        ignoreDuplicates: false,
-      });
-
-    if (error) {
-      erros.push(`Lote ${Math.floor(i / BATCH_SIZE) + 1}: ${error.message}`);
-    } else {
-      salvos += lote.length;
-    }
+    const { error } = await supabase.from('empresas').upsert(lote, { onConflict: 'cnpj' });
+    if (error) erros.push(error.message);
+    else salvos += lote.length;
   }
-
   return { salvos, erros };
 }
 
-// ─────────────────────────────────────────
-// ETL COMPLETO: busca → transforma → salva
-// ─────────────────────────────────────────
-export async function executarETL(
-  config: ETLConfig,
-  onProgress?: (msg: string) => void
-): Promise<ETLResult> {
-  const result: ETLResult = {
-    total_buscados: 0,
-    total_salvos: 0,
-    total_erros: 0,
-    erros: [],
-    empresas: [],
-  };
-
-  try {
-    onProgress?.('🔍 Buscando empresas na fonte de dados...');
-
-    let rawEmpresas: any[] = [];
-
-    if (config.fonte === 'brasilio') {
-      rawEmpresas = await buscarDosBrasilIO(config);
-    } else {
-      // BrasilAPI não tem endpoint de listagem — retornar erro orientativo
-      throw new Error(
-        'A BrasilAPI permite apenas busca por CNPJ individual. Use a fonte "Brasil.IO" para busca em lote.'
-      );
-    }
-
-    result.total_buscados = rawEmpresas.length;
-    onProgress?.(`📦 ${rawEmpresas.length} registros obtidos. Transformando dados...`);
-
-    // Transformar dados
-    const empresasTransformadas = rawEmpresas.map(transformarEmpresa);
-
-    // Filtrar MEI se solicitado
-    const empresasFiltradas = config.apenas_mei
-      ? empresasTransformadas.filter((e) => e.opcao_pelo_mei)
-      : empresasTransformadas;
-
-    result.empresas = empresasFiltradas;
-    onProgress?.(`⚙️ ${empresasFiltradas.length} empresas prontas. Salvando no banco...`);
-
-    // Salvar no Supabase
-    const { salvos, erros } = await salvarEmpresasNoSupabase(empresasFiltradas);
-
-    result.total_salvos = salvos;
-    result.total_erros = erros.length;
-    result.erros = erros;
-
-    onProgress?.(`✅ ETL concluído: ${salvos} empresas salvas.`);
-  } catch (err: any) {
-    result.erros.push(err.message);
-    result.total_erros++;
-    onProgress?.(`❌ Erro: ${err.message}`);
-  }
-
-  return result;
-}
-
-// ─────────────────────────────────────────
-// Consultar empresas do Supabase (com filtros)
-// ─────────────────────────────────────────
 export async function consultarEmpresas(filtros: {
+  uf?: string;
   municipio?: string;
   municipios?: string[];
-  uf?: string;
-  cnae_prefix?: string;
   eixo?: string;
+  cnae_prefix?: string;
   data_inicio?: string;
   data_fim?: string;
   apenas_mei?: boolean;
@@ -253,7 +142,6 @@ export async function consultarEmpresas(filtros: {
     .order('data_abertura', { ascending: false });
 
   if (filtros.uf) query = query.eq('uf', filtros.uf.toUpperCase());
-  
   if (filtros.municipios && filtros.municipios.length > 0) {
     query = query.in('municipio', filtros.municipios.map(m => m.toUpperCase()));
   } else if (filtros.municipio) {
@@ -264,6 +152,7 @@ export async function consultarEmpresas(filtros: {
   if (filtros.data_inicio) query = query.gte('data_abertura', filtros.data_inicio);
   if (filtros.data_fim) query = query.lte('data_abertura', filtros.data_fim);
   if (filtros.apenas_mei) query = query.eq('opcao_pelo_mei', true);
+  
   if (filtros.busca) {
     query = query.or(
       `razao_social.ilike.%${filtros.busca}%,nome_fantasia.ilike.%${filtros.busca}%,cnpj.ilike.%${filtros.busca}%`
@@ -276,47 +165,45 @@ export async function consultarEmpresas(filtros: {
   return query;
 }
 
-// ─────────────────────────────────────────
-// Estatísticas rápidas para o Dashboard
-// ─────────────────────────────────────────
-export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: string[] }) {
+export async function buscarEstatisticas(filtros?: { 
+  uf?: string; 
+  municipios?: string[];
+  apenas_mei?: boolean;
+  data_inicio?: string;
+  data_fim?: string;
+}) {
   const hoje = new Date();
-  const d7 = new Date(hoje); d7.setDate(hoje.getDate() - 7);
   const d30 = new Date(hoje); d30.setDate(hoje.getDate() - 30);
-  const d90 = new Date(hoje); d90.setDate(hoje.getDate() - 90);
-
+  const d7 = new Date(hoje); d7.setDate(hoje.getDate() - 7);
   const fmt = (d: Date) => d.toISOString().split('T')[0];
 
-  const applyBaseFilters = (q: any) => {
+  const applyGlobalFilters = (q: any) => {
     let query = q;
     if (filtros?.uf) query = query.eq('uf', filtros.uf.toUpperCase());
     if (filtros?.municipios && filtros.municipios.length > 0) {
       query = query.in('municipio', filtros.municipios.map(m => m.toUpperCase()));
     }
+    if (filtros?.apenas_mei) query = query.eq('opcao_pelo_mei', true);
+    if (filtros?.data_inicio) query = query.gte('data_abertura', filtros.data_inicio);
+    if (filtros?.data_fim) query = query.lte('data_abertura', filtros.data_fim);
     return query;
   };
 
-  const [total, abertas7, abertas30, abertas90] = await Promise.all([
-    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true })),
-    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7))),
-    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30))),
-    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d90))),
+  const [total, abertas30, abertas7, totalMei] = await Promise.all([
+    applyGlobalFilters(supabase.from('empresas').select('id', { count: 'exact', head: true })),
+    applyGlobalFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30))),
+    applyGlobalFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7))),
+    applyGlobalFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).eq('opcao_pelo_mei', true)),
   ]);
 
   return {
     total_empresas: total.count || 0,
-    abertas_7d: abertas7.count || 0,
     abertas_30d: abertas30.count || 0,
-    abertas_90d: abertas90.count || 0,
+    abertas_7d: abertas7.count || 0,
+    total_mei: totalMei.count || 0,
   };
 }
 
-// ─────────────────────────────────────────
-// Buscar cidades únicas por estado no banco
-// ─────────────────────────────────────────
-// ─────────────────────────────────────────
-// Buscar todas as cidades de um estado via API do IBGE
-// ─────────────────────────────────────────
 export async function buscarCidadesIbge(uf: string) {
   if (!uf) return [];
   try {
@@ -331,8 +218,5 @@ export async function buscarCidadesIbge(uf: string) {
 }
 
 export async function buscarCidadesSugestao(uf: string, termo: string) {
-  // Esta função agora será usada localmente no componente após carregar a lista do IBGE
-  // ou podemos manter a assinatura e fazer o fetch aqui se preferir.
-  // Para ser mais performático, vamos baixar a lista do estado uma vez no componente.
   return []; 
 }

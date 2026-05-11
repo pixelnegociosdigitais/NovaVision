@@ -43,7 +43,14 @@ function formatCnpj(cnpj?: string) {
 interface CompaniesProps { onSelectCompany: (c: any) => void; }
 
 export default function Companies({ onSelectCompany }: CompaniesProps) {
-  const { uf: prefUf, cities: prefCities, isFiltered: prefActive } = usePreferences();
+  const { 
+    uf: prefUf, 
+    cities: prefCities, 
+    apenasMei: prefMei, 
+    dataInicio: prefStart, 
+    dataFim: prefEnd,
+    isFiltered: prefActive 
+  } = usePreferences();
   const [empresas, setEmpresas]       = useState<Empresa[]>([]);
   const [total, setTotal]             = useState(0);
   const [loading, setLoading]         = useState(true);
@@ -66,7 +73,9 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
         uf:         prefUf || uf || undefined,
         municipios: prefCities.length > 0 ? prefCities : undefined,
         eixo:       eixo  || undefined,
-        apenas_mei: apenasMei || undefined,
+        apenas_mei: prefMei || apenasMei || undefined,
+        data_inicio: prefStart || undefined,
+        data_fim:    prefEnd || undefined,
         pagina,
         por_pagina: POR_PAGINA,
       });
@@ -77,7 +86,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
     } finally {
       setLoading(false);
     }
-  }, [busca, uf, prefUf, prefCities, eixo, apenasMei, pagina]);
+  }, [busca, uf, prefUf, prefCities, prefMei, prefStart, prefEnd, eixo, apenasMei, pagina]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
@@ -196,14 +205,15 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
 
                     {/* Toggles */}
                     {[
-                      { label: 'Apenas MEI', desc: 'Microempreendedores', value: apenasMei, set: setApenasMei },
-                    ].map(({ label, desc, value, set }) => (
-                      <div key={label} className="flex items-center justify-between p-3 bg-white/3 rounded-xl border border-white/5">
+                      { label: 'Apenas MEI', desc: 'Microempreendedores', value: prefMei || apenasMei, set: setApenasMei, disabled: prefMei },
+                    ].map(({ label, desc, value, set, disabled }) => (
+                      <div key={label} className={cn("flex items-center justify-between p-3 bg-white/3 rounded-xl border border-white/5", disabled && "opacity-60")}>
                         <div>
-                          <p className="text-sm font-semibold text-slate-200">{label}</p>
+                          <p className="text-sm font-semibold text-slate-200">{label} {disabled && <span className="text-[10px] text-brand-blue ml-1">(Foco Ativo)</span>}</p>
                           <p className="text-xs text-slate-500">{desc}</p>
                         </div>
                         <button
+                          disabled={disabled}
                           onClick={() => { set(!value); setPagina(1); }}
                           className={cn('relative w-10 h-5 rounded-full transition-all', value ? 'bg-brand-blue' : 'bg-white/10')}
                         >
