@@ -116,7 +116,7 @@ export default function FocusSettings() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Foco Econômico Regional</h1>
-          <p className="text-slate-400 font-sans">Ajuste os filtros globais para segmentar a inteligência de dados.</p>
+          <p className="text-white/80 font-sans">Ajuste os filtros globais para segmentar a inteligência de dados.</p>
         </div>
         <div className="flex items-center gap-3">
           <AnimatePresence>
@@ -155,13 +155,13 @@ export default function FocusSettings() {
               </div>
               <div>
                 <h3 className="font-display font-bold text-white text-lg">Área Geográfica</h3>
-                <p className="text-slate-500 text-sm">Estado e municípios prioritários.</p>
+                <p className="text-white/70 text-sm">Estado e municípios prioritários.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
               <div className="space-y-3">
-                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em]">Estado</label>
+                <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-[0.2em]">Estado</label>
                 <div className="relative">
                   <select
                     value={uf}
@@ -171,18 +171,18 @@ export default function FocusSettings() {
                     <option value="">Brasil (Visão Geral)</option>
                     {UFS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
-                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/70 pointer-events-none" />
                 </div>
               </div>
 
               <div className="space-y-3 relative" ref={suggestionRef}>
-                <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em]">Cidades</label>
+                <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-[0.2em]">Cidades</label>
                 <div className="relative group">
-                  <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors", uf ? "text-brand-purple" : "text-slate-700")} />
+                  <Search className={cn("absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors", uf ? "text-brand-purple" : "text-white/40")} />
                   <input
                     type="text" value={cityInput} onChange={e => setCityInput(e.target.value)}
                     disabled={!uf || loadingCities} placeholder={!uf ? "Selecione o estado" : "Buscar cidade..."}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/40 transition-all placeholder:text-slate-600 disabled:opacity-30"
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/40 transition-all placeholder:text-white/60 disabled:opacity-30"
                   />
                 </div>
                 <AnimatePresence>
@@ -193,7 +193,7 @@ export default function FocusSettings() {
                     >
                       <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
                         {suggestions.map((s) => (
-                          <button key={s} onClick={() => handleAddCity(s)} className="w-full flex items-center justify-between px-6 py-4 text-sm text-slate-300 hover:bg-brand-purple/10 hover:text-white transition-all text-left group">
+                          <button key={s} onClick={() => handleAddCity(s)} className="w-full flex items-center justify-between px-6 py-4 text-sm text-white/90 hover:bg-brand-purple/10 hover:text-white transition-all text-left group">
                             {s} <Plus className="w-4 h-4 opacity-0 group-hover:opacity-100 text-brand-purple" />
                           </button>
                         ))}
@@ -214,7 +214,7 @@ export default function FocusSettings() {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-600 italic">Filtrando todo o estado de {uf}.</p>
+                    <p className="text-xs text-white/60 italic">Filtrando todo o estado de {uf}.</p>
                   )}
                 </div>
               )}
@@ -229,7 +229,7 @@ export default function FocusSettings() {
               </div>
               <div>
                 <h3 className="font-display font-bold text-white text-lg">Eixos Econômicos</h3>
-                <p className="text-slate-500 text-sm">Selecione um ou mais setores para filtrar os resultados.</p>
+                <p className="text-white/70 text-sm">Selecione um ou mais setores para filtrar os resultados.</p>
               </div>
             </div>
 
@@ -244,7 +244,7 @@ export default function FocusSettings() {
                       "p-4 rounded-2xl border transition-all text-center space-y-2 group",
                       active 
                         ? "bg-brand-cyan/10 border-brand-cyan/40 text-brand-cyan shadow-lg shadow-brand-cyan/5" 
-                        : "bg-white/3 border-white/5 text-slate-500 hover:bg-white/5 hover:text-slate-300"
+                        : "bg-white/3 border-white/5 text-white/70 hover:bg-white/5 hover:text-white/90"
                     )}
                   >
                     <div className={cn(
@@ -261,7 +261,7 @@ export default function FocusSettings() {
             
             {eixos.length > 0 && (
               <div className="flex justify-between items-center pt-4 border-t border-white/5">
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                <p className="text-[10px] text-white/70 font-bold uppercase tracking-widest">
                   {eixos.length} eixo(s) selecionado(s)
                 </p>
                 <button onClick={() => { setEixos([]); showSavedFeedback('Eixos limpos'); }} className="text-[10px] text-red-400 hover:underline font-bold uppercase">Remover Filtro Setorial</button>
@@ -278,13 +278,13 @@ export default function FocusSettings() {
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-white text-lg">Porte da Empresa</h3>
-                  <p className="text-slate-500 text-sm">Filtro por categoria MEI.</p>
+                  <p className="text-white/70 text-sm">Filtro por categoria MEI.</p>
                 </div>
               </div>
               <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.08] transition-all">
                 <div>
                   <p className="font-display font-bold text-white text-sm">Apenas MEI</p>
-                  <p className="text-xs text-slate-500">Excluir outras naturezas</p>
+                  <p className="text-xs text-white/70">Excluir outras naturezas</p>
                 </div>
                 <button 
                   onClick={() => { setApenasMei(!apenasMei); showSavedFeedback(apenasMei ? 'Todos os portes' : 'Apenas MEI ativo'); }}
@@ -302,16 +302,16 @@ export default function FocusSettings() {
                 </div>
                 <div>
                   <h3 className="font-display font-bold text-white text-lg">Cronograma</h3>
-                  <p className="text-slate-500 text-sm">Data de fundação.</p>
+                  <p className="text-white/70 text-sm">Data de fundação.</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest text-center block">Início</label>
+                  <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-widest text-center block">Início</label>
                   <input type="date" value={dataInicio} onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest text-center block">Fim</label>
+                  <label className="text-[10px] font-display font-black text-white/70 uppercase tracking-widest text-center block">Fim</label>
                   <input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); showSavedFeedback('Data alterada'); }} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none [color-scheme:dark]" />
                 </div>
               </div>
@@ -326,45 +326,45 @@ export default function FocusSettings() {
                 <Shield className="w-5 h-5 text-brand-blue" />
                 <div>
                   <h4 className="font-display font-bold text-white text-[10px] uppercase tracking-[0.2em]">Filtros Ativos</h4>
-                  <p className="text-[9px] text-slate-500 font-medium">Configuração Global Nova Vision</p>
+                  <p className="text-[9px] text-white/70 font-medium">Configuração Global Nova Vision</p>
                 </div>
              </div>
              
              <div className="space-y-8">
                 <div className="space-y-3">
-                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Localização</p>
+                   <p className="text-[10px] text-white/70 uppercase font-black tracking-widest">Localização</p>
                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-brand-blue text-white flex items-center justify-center font-bold text-lg">{uf || 'BR'}</div>
                       <div>
                         <p className="text-sm font-bold text-white">{uf ? 'Foco Regional' : 'Brasil Total'}</p>
-                        <p className="text-[10px] text-slate-500">{cities.length > 0 ? `${cities.length} cidade(s)` : (uf ? 'Estado Completo' : 'Nacional')}</p>
+                        <p className="text-[10px] text-white/70">{cities.length > 0 ? `${cities.length} cidade(s)` : (uf ? 'Estado Completo' : 'Nacional')}</p>
                       </div>
                    </div>
                 </div>
 
                 <div className="space-y-3">
-                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Setores (Eixos)</p>
+                   <p className="text-[10px] text-white/70 uppercase font-black tracking-widest">Setores (Eixos)</p>
                    <div className="flex flex-wrap gap-1.5">
                       {eixos.length > 0 ? (
                         eixos.map(e => <span key={e} className="px-2 py-1 bg-brand-cyan/10 text-brand-cyan text-[9px] font-black uppercase rounded border border-brand-cyan/20">{e}</span>)
-                      ) : <span className="text-xs text-slate-600 italic">Todos os eixos</span>}
+                      ) : <span className="text-xs text-white/60 italic">Todos os eixos</span>}
                    </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Porte</p>
+                      <p className="text-[9px] text-white/70 font-black uppercase mb-1">Porte</p>
                       <p className={cn("text-xs font-bold", apenasMei ? "text-emerald-400" : "text-white")}>{apenasMei ? 'MEI' : 'TODOS'}</p>
                    </div>
                    <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                      <p className="text-[9px] text-slate-500 font-black uppercase mb-1">Período</p>
+                      <p className="text-[9px] text-white/70 font-black uppercase mb-1">Período</p>
                       <p className={cn("text-xs font-bold", dataInicio ? "text-amber-400" : "text-white")}>{dataInicio ? 'ATIVO' : 'LIVRE'}</p>
                    </div>
                 </div>
              </div>
              
              {(uf || apenasMei || dataInicio || dataFim || eixos.length > 0) && (
-               <button onClick={clearPreferences} className="w-full mt-12 py-4 rounded-2xl text-[10px] font-black uppercase text-slate-500 border border-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all tracking-widest">
+               <button onClick={clearPreferences} className="w-full mt-12 py-4 rounded-2xl text-[10px] font-black uppercase text-white/70 border border-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all tracking-widest">
                  Resetar Foco Global
                </button>
              )}

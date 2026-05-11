@@ -76,7 +76,7 @@ function StatCard({ title, value, sub, icon: Icon, loading }: {
         )}
       </div>
       <div className="space-y-1">
-        <h3 className="text-slate-400 text-sm font-medium font-display uppercase tracking-wider">{title}</h3>
+        <h3 className="text-white/80 text-sm font-medium font-display uppercase tracking-wider">{title}</h3>
         {loading ? (
           <Skeleton className="h-9 w-32" />
         ) : (
@@ -97,7 +97,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-[#121212] border border-white/10 rounded-xl px-4 py-3 shadow-xl">
-      <p className="text-slate-400 text-xs mb-1">{label}</p>
+      <p className="text-white/80 text-xs mb-1">{label}</p>
       <p className="text-white font-bold text-sm">{payload[0].value?.toLocaleString('pt-BR')} empresas</p>
     </div>
   );
@@ -227,12 +227,12 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Panorama Executivo</h1>
-          <p className="text-slate-400 font-sans">{sincronia} • Dados do banco Nova Vision</p>
+          <p className="text-white/80 font-sans">{sincronia} • Dados do banco Nova Vision</p>
         </div>
         <button
           onClick={() => carregar(true)}
           disabled={loading}
-          className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
+          className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
         >
           <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           Atualizar
@@ -254,9 +254,9 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="font-display text-xl font-bold text-white">Evolução de Aberturas</h2>
-              <p className="text-slate-500 text-xs mt-0.5">Últimos 12 meses</p>
+              <p className="text-white/70 text-xs mt-0.5">Últimos 12 meses</p>
             </div>
-            <BarChart3 className="w-5 h-5 text-slate-600" />
+            <BarChart3 className="w-5 h-5 text-white/60" />
           </div>
           <div className="h-[280px] w-full min-h-0 min-w-0">
             {loading ? (
@@ -264,7 +264,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                 <Skeleton className="w-full h-full" />
               </div>
             ) : mensal.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-slate-600">
+              <div className="h-full flex flex-col items-center justify-center text-white/60">
                 <Building2 className="w-12 h-12 mb-3 opacity-30" />
                 <p className="text-sm">Nenhum dado de abertura disponível</p>
                 <p className="text-xs mt-1">Importe empresas via Central de Importação</p>
@@ -300,7 +300,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
               {[1,2,3,4].map(i => <Skeleton key={i} className="h-8 w-full" />)}
             </div>
           ) : eixos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-40 text-slate-600">
+            <div className="flex flex-col items-center justify-center h-40 text-white/60">
               <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
               <p className="text-sm text-center">Importe dados para ver distribuição setorial</p>
             </div>
@@ -312,7 +312,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                 return (
                   <div key={item.name} className="space-y-2 group cursor-pointer">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-slate-400 font-medium">{item.name}</span>
+                      <span className="text-white/80 font-medium">{item.name}</span>
                       <span className="text-white font-bold">{item.value.toLocaleString('pt-BR')}</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -337,7 +337,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
         <div className="p-8 border-b border-white/5 flex justify-between items-center">
           <div>
             <h2 className="font-display text-xl font-bold text-white">Últimas Empresas Abertas</h2>
-            <p className="text-slate-500 text-xs mt-0.5">Ordenado por data de abertura</p>
+            <p className="text-white/70 text-xs mt-0.5">Ordenado por data de abertura</p>
           </div>
           <button className="text-brand-blue font-display text-sm font-bold hover:underline flex items-center gap-1">
             Ver todas <ArrowUpRight className="w-3.5 h-3.5" />
@@ -346,7 +346,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="text-xs font-display font-medium text-slate-500 uppercase tracking-widest bg-white/[0.02]">
+              <tr className="text-xs font-display font-medium text-white/70 uppercase tracking-widest bg-white/[0.02]">
                 <th className="px-8 py-4">Empresa</th>
                 <th className="px-8 py-4">CNPJ</th>
                 <th className="px-8 py-4">Cidade / UF</th>
@@ -370,8 +370,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                 <tr>
                   <td colSpan={6} className="px-8 py-16 text-center">
                     <Building2 className="w-10 h-10 mx-auto mb-3 text-slate-700" />
-                    <p className="text-slate-500 text-sm">Nenhuma empresa importada ainda.</p>
-                    <p className="text-slate-600 text-xs mt-1">Acesse <strong className="text-slate-500">Importar Dados</strong> na sidebar para iniciar.</p>
+                    <p className="text-white/70 text-sm">Nenhuma empresa importada ainda.</p>
+                    <p className="text-white/60 text-xs mt-1">Acesse <strong className="text-white/70">Importar Dados</strong> na sidebar para iniciar.</p>
                   </td>
                 </tr>
               ) : (
@@ -395,19 +395,19 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                           </span>
                         </div>
                       </td>
-                      <td className="px-8 py-5 text-slate-400 font-mono text-xs">
+                      <td className="px-8 py-5 text-white/80 font-mono text-xs">
                         {emp.cnpj?.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5')}
                       </td>
                       <td className="px-8 py-5">
-                        <div className="flex items-center gap-1.5 text-slate-400 text-sm">
-                          <MapPin className="w-3.5 h-3.5 text-slate-600" />
+                        <div className="flex items-center gap-1.5 text-white/80 text-sm">
+                          <MapPin className="w-3.5 h-3.5 text-white/60" />
                           {[emp.municipio, emp.uf].filter(Boolean).join(', ') || '—'}
                         </div>
                       </td>
                       <td className="px-8 py-5">
                         <EixoBadge eixo={emp.eixo_economico} />
                       </td>
-                      <td className="px-8 py-5 text-slate-400 text-sm">
+                      <td className="px-8 py-5 text-white/80 text-sm">
                         {emp.data_abertura
                           ? new Date(emp.data_abertura + 'T12:00:00').toLocaleDateString('pt-BR')
                           : '—'}
@@ -417,7 +417,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
                           'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
                           emp.descricao_situacao_cadastral === 'ATIVA'
                             ? 'bg-emerald-400/10 text-emerald-400'
-                            : 'bg-slate-500/10 text-slate-500'
+                            : 'bg-slate-500/10 text-white/70'
                         )}>
                           {emp.descricao_situacao_cadastral || 'N/D'}
                         </span>

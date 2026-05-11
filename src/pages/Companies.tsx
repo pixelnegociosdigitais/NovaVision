@@ -115,7 +115,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Base de Dados Empresarial</h1>
-          <p className="text-slate-400 font-sans">
+          <p className="text-white/80 font-sans">
             {loading ? 'Carregando...' : `${total.toLocaleString('pt-BR')} empresas encontradas`}
           </p>
         </div>
@@ -123,11 +123,11 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
           <button
             onClick={carregar}
             disabled={loading}
-            className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
+            className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
           >
             <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} /> Atualizar
           </button>
-          <button className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
+          <button className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
             <Download className="w-4 h-4" /> Exportar CSV
           </button>
         </div>
@@ -145,7 +145,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                 <Filter className="w-4 h-4 text-brand-blue" /> Filtros
                 {hasFilters && <span className="w-2 h-2 bg-brand-blue rounded-full" />}
               </span>
-              <ChevronDown className={cn('w-4 h-4 text-slate-500 transition-transform', !filtersOpen && '-rotate-90')} />
+              <ChevronDown className={cn('w-4 h-4 text-white/70 transition-transform', !filtersOpen && '-rotate-90')} />
             </button>
 
             <AnimatePresence>
@@ -157,7 +157,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                   <div className="px-5 pb-5 space-y-5 border-t border-white/5 pt-4">
                     {/* UF */}
                     <div className="space-y-2">
-                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">
+                      <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">
                         Estado (UF) {prefUf && <span className="text-brand-blue text-[8px] ml-1">(Foco Ativo)</span>}
                       </label>
                       <div className="relative">
@@ -173,7 +173,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                           <option value="">Todos os estados</option>
                           {UFS.map(u => <option key={u} value={u}>{u}</option>)}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/70 pointer-events-none" />
                       </div>
                     </div>
 
@@ -191,7 +191,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
 
                     {/* Eixo */}
                     <div className="space-y-2">
-                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">
+                      <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">
                         Setor {prefEixos.length > 0 && <span className="text-brand-cyan text-[8px] ml-1">(Foco Ativo)</span>}
                       </label>
                       <div className="relative">
@@ -207,7 +207,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                           <option value="">{prefEixos.length > 0 ? `Múltiplos (${prefEixos.length})` : 'Todos os eixos'}</option>
                           {EIXOS.map(e => <option key={e} value={e}>{e}</option>)}
                         </select>
-                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/70 pointer-events-none" />
                       </div>
                     </div>
 
@@ -218,7 +218,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                       <div key={label} className={cn("flex items-center justify-between p-3 bg-white/3 rounded-xl border border-white/5", disabled && "opacity-60")}>
                         <div>
                           <p className="text-sm font-semibold text-slate-200">{label} {disabled && <span className="text-[10px] text-brand-blue ml-1">(Foco Ativo)</span>}</p>
-                          <p className="text-xs text-slate-500">{desc}</p>
+                          <p className="text-xs text-white/70">{desc}</p>
                         </div>
                         <button
                           disabled={disabled}
@@ -250,7 +250,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
           {/* Barra de busca */}
           <form onSubmit={handleBusca} className="glass-panel p-2 rounded-2xl flex items-center gap-2">
             <div className="relative flex-1 group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-brand-blue transition-colors" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-brand-blue transition-colors" />
               <input
                 type="text"
                 value={buscaInput}
@@ -261,7 +261,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
             </div>
             {buscaInput && (
               <button type="button" onClick={() => { setBuscaInput(''); setBusca(''); setPagina(1); }}
-                className="p-2 text-slate-500 hover:text-white transition-colors">
+                className="p-2 text-white/70 hover:text-white transition-colors">
                 <X className="w-4 h-4" />
               </button>
             )}
@@ -276,7 +276,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
             <div className="overflow-x-auto">
               <table className="w-full text-left">
                 <thead>
-                  <tr className="text-[10px] font-display font-bold text-slate-500 uppercase tracking-[0.15em] bg-white/[0.02]">
+                  <tr className="text-[10px] font-display font-bold text-white/70 uppercase tracking-[0.15em] bg-white/[0.02]">
                     <th className="px-6 py-4">Empresa</th>
                     <th className="px-6 py-4">CNPJ</th>
                     <th className="px-6 py-4">Cidade / UF</th>
@@ -298,9 +298,9 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                   ) : empresas.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="px-8 py-20 text-center">
-                        <Building2 className="w-12 h-12 mx-auto mb-4 text-slate-700" />
-                        <p className="text-slate-400 font-semibold">Nenhuma empresa encontrada</p>
-                        <p className="text-slate-600 text-sm mt-1">
+                        <Building2 className="w-12 h-12 mx-auto mb-4 text-white/40" />
+                        <p className="text-white/80 font-semibold">Nenhuma empresa encontrada</p>
+                        <p className="text-white/60 text-sm mt-1">
                           {hasFilters ? 'Tente ajustar os filtros' : 'Importe dados via Central de Importação'}
                         </p>
                       </td>
@@ -326,20 +326,20 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                                   {emp.nome_fantasia || emp.razao_social}
                                 </p>
                                 {emp.nome_fantasia && (
-                                  <p className="text-slate-600 text-xs truncate max-w-[180px]">{emp.razao_social}</p>
+                                  <p className="text-white/60 text-xs truncate max-w-[180px]">{emp.razao_social}</p>
                                 )}
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-slate-400 font-mono text-xs">{formatCnpj(emp.cnpj)}</td>
+                          <td className="px-6 py-4 text-white/80 font-mono text-xs">{formatCnpj(emp.cnpj)}</td>
                           <td className="px-6 py-4">
-                            <div className="flex items-center gap-1.5 text-slate-400 text-sm">
-                              <MapPin className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-white/80 text-sm">
+                              <MapPin className="w-3.5 h-3.5 text-white/60 shrink-0" />
                               {[emp.municipio, emp.uf].filter(Boolean).join(', ') || '—'}
                             </div>
                           </td>
                           <td className="px-6 py-4"><EixoBadge eixo={emp.eixo_economico} /></td>
-                          <td className="px-6 py-4 text-slate-400 text-sm">
+                          <td className="px-6 py-4 text-white/80 text-sm">
                             {emp.data_abertura
                               ? new Date(emp.data_abertura + 'T12:00:00').toLocaleDateString('pt-BR')
                               : '—'}
@@ -349,17 +349,17 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                               'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider',
                               emp.descricao_situacao_cadastral === 'ATIVA'
                                 ? 'bg-emerald-400/10 text-emerald-400'
-                                : 'bg-slate-500/10 text-slate-500'
+                                : 'bg-slate-500/10 text-white/70'
                             )}>
                               {emp.descricao_situacao_cadastral || 'N/D'}
                             </span>
                           </td>
                           <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
                             <div className="flex justify-end gap-1">
-                              <button className="p-2 rounded-lg bg-white/5 text-slate-500 hover:text-amber-400 hover:bg-amber-400/10 transition-all">
+                              <button className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-amber-400 hover:bg-amber-400/10 transition-all">
                                 <Star className="w-3.5 h-3.5" />
                               </button>
-                              <button className="p-2 rounded-lg bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all">
+                              <button className="p-2 rounded-lg bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all">
                                 <MoreVertical className="w-3.5 h-3.5" />
                               </button>
                             </div>
@@ -374,14 +374,14 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
 
             {/* Paginação */}
             <div className="px-8 py-5 border-t border-white/5 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-display">
+              <span className="text-xs text-white/70 font-display">
                 {loading ? '...' : `Página ${pagina} de ${totalPaginas} • ${total.toLocaleString('pt-BR')} registros`}
               </span>
               <div className="flex gap-2">
                 <button
                   disabled={pagina <= 1 || loading}
                   onClick={() => setPagina(p => p - 1)}
-                  className="p-2 rounded-lg bg-white/5 border border-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
+                  className="p-2 rounded-lg bg-white/5 border border-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -393,7 +393,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                       onClick={() => setPagina(pg)}
                       className={cn(
                         'w-8 h-8 rounded-lg text-xs font-bold font-display transition-all',
-                        pg === pagina ? 'bg-brand-blue text-white shadow-[0_0_15px_rgba(86,141,255,0.4)]' : 'bg-white/5 text-slate-400 hover:bg-white/10'
+                        pg === pagina ? 'bg-brand-blue text-white shadow-[0_0_15px_rgba(86,141,255,0.4)]' : 'bg-white/5 text-white/80 hover:bg-white/10'
                       )}
                     >
                       {pg}
@@ -403,7 +403,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                 <button
                   disabled={pagina >= totalPaginas || loading}
                   onClick={() => setPagina(p => p + 1)}
-                  className="p-2 rounded-lg bg-white/5 border border-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
+                  className="p-2 rounded-lg bg-white/5 border border-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:opacity-30"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

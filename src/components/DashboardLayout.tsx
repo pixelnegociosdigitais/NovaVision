@@ -36,7 +36,7 @@ const SidebarItem = React.memo(({ icon: Icon, label, active, onClick }: SidebarI
       "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
       active 
         ? "bg-brand-blue/10 text-brand-blue" 
-        : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
+        : "text-white/80 hover:text-white/100 hover:bg-white/5"
     )}
   >
     <Icon className={cn("w-5 h-5 transition-transform duration-300", active && "scale-110")} />
@@ -73,14 +73,14 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
   ];
 
   return (
-    <div className="flex min-h-screen bg-brand-black text-slate-200">
+    <div className="flex min-h-screen bg-brand-black text-white/100">
       {/* Sidebar */}
       <aside className="w-64 border-r border-white/5 flex flex-col p-6 fixed h-screen bg-brand-black/50 backdrop-blur-xl z-50">
         <div className="flex items-center gap-3 mb-10 px-2">
           <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center shadow-[0_0_20px_rgba(86,141,255,0.4)]">
             <Building2 className="text-white w-5 h-5" />
           </div>
-          <h1 className="font-display text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+          <h1 className="font-display text-xl font-bold tracking-tight bg-gradient-to-r from-white to-white bg-clip-text text-transparent">
             Nova Vision
           </h1>
         </div>
@@ -99,7 +99,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
 
         <div className="pt-6 border-t border-white/5 space-y-1">
           <SidebarItem icon={HelpCircle} label="Suporte" onClick={() => {}} />
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-400/5 transition-all">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 hover:text-red-400 hover:bg-red-400/5 transition-all">
             <LogOut className="w-5 h-5" />
             <span className="font-display font-medium text-sm">Sair</span>
           </button>
@@ -112,7 +112,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
         <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 sticky top-0 bg-brand-black/50 backdrop-blur-xl z-40">
           <div className="flex items-center gap-4 flex-1">
             <div className="relative w-full max-w-md group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-brand-blue transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-brand-blue transition-colors" />
               <input 
                 type="text" 
                 placeholder="Busca Inteligente (CNPJ, Razão Social...)"
@@ -122,7 +122,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
           </div>
 
           <div className="flex items-center gap-6">
-            <button className="relative p-2 text-slate-400 hover:text-white transition-colors">
+            <button className="relative p-2 text-white/80 hover:text-white transition-colors">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-brand-blue rounded-full shadow-[0_0_10px_rgba(86,141,255,0.8)]" />
             </button>
@@ -134,12 +134,12 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
               onClick={() => setCurrentPage('profile')}
             >
               <div className="text-right hidden sm:block">
-                <p className="text-sm font-display font-semibold text-slate-200 group-hover:text-brand-blue transition-colors">Alexandre Silva</p>
-                <p className="text-xs text-slate-500">Plano Enterprise</p>
+                <p className="text-sm font-display font-semibold text-white/100 group-hover:text-brand-blue transition-colors">Alexandre Silva</p>
+                <p className="text-xs text-white/70">Plano Enterprise</p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-blue to-brand-purple p-[1px]">
                 <div className="w-full h-full rounded-[11px] bg-brand-black flex items-center justify-center">
-                  <User className="w-5 h-5 text-slate-300" />
+                  <User className="w-5 h-5 text-white/90" />
                 </div>
               </div>
             </div>

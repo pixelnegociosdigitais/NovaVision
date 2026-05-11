@@ -47,10 +47,10 @@ export default function Admin() {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Painel Administrativo</h1>
-          <p className="text-slate-400 font-sans">Monitoramento de infraestrutura, volumes de dados e auditoria do sistema</p>
+          <p className="text-white/80 font-sans">Monitoramento de infraestrutura, volumes de dados e auditoria do sistema</p>
         </div>
         <div className="flex gap-3">
-          <button className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
+          <button className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
             <Settings className="w-4 h-4" /> Configurações
           </button>
           <button className="bg-brand-blue text-white px-5 py-2.5 rounded-xl font-display font-bold text-sm shadow-[0_0_20px_rgba(86,141,255,0.3)] hover:scale-105 transition-all flex items-center gap-2">
@@ -72,9 +72,9 @@ export default function Admin() {
               </div>
            </div>
            <div>
-              <h3 className="text-slate-400 text-xs font-display font-bold uppercase tracking-widest mb-1">Volume do Banco</h3>
+              <h3 className="text-white/80 text-xs font-display font-bold uppercase tracking-widest mb-1">Volume do Banco</h3>
               {loading ? <div className="h-8 w-32 bg-white/5 rounded animate-pulse" /> : (
-                <p className="text-3xl font-display font-bold text-white">{stats.totalEmpresas.toLocaleString('pt-BR')} <span className="text-sm font-sans font-medium text-slate-500">Registros</span></p>
+                <p className="text-3xl font-display font-bold text-white">{stats.totalEmpresas.toLocaleString('pt-BR')} <span className="text-sm font-sans font-medium text-white/70">Registros</span></p>
               )}
               <div className="mt-4 flex gap-1 h-2">
                  {[1,2,3,4,5,6,7,8,9,10,11,12].map(i => (
@@ -95,9 +95,9 @@ export default function Admin() {
               <Server className="w-4 h-4 text-brand-purple" />
            </div>
            <div>
-              <h3 className="text-slate-400 text-xs font-display font-bold uppercase tracking-widest mb-1">Health & Latency</h3>
-              <p className="text-3xl font-display font-bold text-white">12ms <span className="text-sm font-sans font-medium text-slate-500">Avg Response</span></p>
-              <p className="text-xs text-slate-500 mt-2 font-medium flex items-center gap-2">
+              <h3 className="text-white/80 text-xs font-display font-bold uppercase tracking-widest mb-1">Health & Latency</h3>
+              <p className="text-3xl font-display font-bold text-white">12ms <span className="text-sm font-sans font-medium text-white/70">Avg Response</span></p>
+              <p className="text-xs text-white/70 mt-2 font-medium flex items-center gap-2">
                 <Cloud className="w-3 h-3" /> Supabase Connection: Stable
               </p>
            </div>
@@ -112,11 +112,11 @@ export default function Admin() {
               <span className="bg-brand-cyan/10 text-brand-cyan px-2 py-0.5 rounded-lg text-[10px] font-bold uppercase">Pro Tier</span>
            </div>
            <div>
-              <h3 className="text-slate-400 text-xs font-display font-bold uppercase tracking-widest mb-1">Monitoramento Ativo</h3>
+              <h3 className="text-white/80 text-xs font-display font-bold uppercase tracking-widest mb-1">Monitoramento Ativo</h3>
               {loading ? <div className="h-8 w-32 bg-white/5 rounded animate-pulse" /> : (
-                <p className="text-3xl font-display font-bold text-white">{stats.totalAlertas} <span className="text-sm font-sans font-medium text-slate-500">Alertas</span></p>
+                <p className="text-3xl font-display font-bold text-white">{stats.totalAlertas} <span className="text-sm font-sans font-medium text-white/70">Alertas</span></p>
               )}
-              <p className="text-xs text-slate-500 mt-2 font-medium">{stats.totalFavoritos} empresas favoritadas pelos usuários</p>
+              <p className="text-xs text-white/70 mt-2 font-medium">{stats.totalFavoritos} empresas favoritadas pelos usuários</p>
            </div>
         </div>
       </div>
@@ -139,9 +139,9 @@ export default function Admin() {
                    <div className="flex justify-between items-center">
                      <div className="flex items-center gap-3">
                         <item.icon className={cn("w-4 h-4", `text-${item.color}`)} />
-                        <span className="text-sm text-slate-300 font-medium">{item.label}</span>
+                        <span className="text-sm text-white/90 font-medium">{item.label}</span>
                      </div>
-                     <span className="text-xs text-slate-500 font-bold">{item.value} / {item.total}</span>
+                     <span className="text-xs text-white/70 font-bold">{item.value} / {item.total}</span>
                    </div>
                    <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
                       <motion.div
@@ -174,10 +174,10 @@ export default function Admin() {
                        <div className={cn("w-2 h-2 rounded-full", log.color.replace('text', 'bg'))} />
                        <div>
                           <p className="text-sm font-semibold text-slate-200">{log.action}</p>
-                          <p className="text-[10px] text-slate-500 uppercase font-display font-bold">{log.status} • {log.time}</p>
+                          <p className="text-[10px] text-white/70 uppercase font-display font-bold">{log.status} • {log.time}</p>
                        </div>
                     </div>
-                    <button className="p-2 text-slate-600 hover:text-white"><ChevronRight className="w-4 h-4" /></button>
+                    <button className="p-2 text-white/60 hover:text-white"><ChevronRight className="w-4 h-4" /></button>
                  </div>
                ))}
             </div>
