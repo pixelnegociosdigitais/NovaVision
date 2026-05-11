@@ -20,6 +20,18 @@ export default defineConfig(({mode}) => {
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       open: true,
+      proxy: {
+        '/api/brasilapi': {
+          target: 'https://brasilapi.com.br',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/brasilapi/, ''),
+        },
+        '/api/brasilio': {
+          target: 'https://api.brasil.io',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/brasilio/, ''),
+        }
+      }
     },
   };
 });

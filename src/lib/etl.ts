@@ -93,7 +93,7 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   params.append('format', 'json');
   params.append('page_size', String(config.limit || 100));
 
-  const url = `https://api.brasil.io/v1/dataset/socios-brasil/empresas/data/?${params.toString()}`;
+  const url = `/api/brasilio/v1/dataset/socios-brasil/empresas/data/?${params.toString()}`;
 
   const response = await fetch(url, {
     headers: {
@@ -113,11 +113,9 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
 
 export async function buscarPorCnpjBrasilAPI(cnpj: string): Promise<any> {
   const cleanCnpj = cnpj.replace(/\D/g, '');
-  // Usando AllOrigins como proxy reverso para evitar erro de CORS no navegador
-  const url = `https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`;
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  // Usando o proxy do Vite configurado em vite.config.ts para evitar erro de CORS
+  const response = await fetch(`/api/brasilapi/api/cnpj/v1/${cleanCnpj}`);
   
-  const response = await fetch(proxyUrl);
   if (!response.ok) throw new Error('Empresa não encontrada na BrasilAPI');
   return response.json();
 }
