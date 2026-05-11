@@ -230,3 +230,32 @@ export async function buscarCidadesIbge(uf: string) {
 export async function buscarCidadesSugestao(uf: string, termo: string) {
   return []; 
 }
+
+export async function executarETL(config: ETLConfig, onLog: (m: string) => void): Promise<ETLResult> {
+  const result: ETLResult = { total_buscados: 0, total_salvos: 0, total_erros: 0, erros: [] };
+  try {
+    onLog(`Buscando dados no Brasil.IO para ${config.municipio || config.uf || 'Brasil'}...`);
+    const raw = await buscarDosBrasilIO(config);
+    result.total_buscados = raw.length;
+    
+    if (raw.length === 0) {
+      onLog('Nenhum dado novo encontrado para este filtro.');
+      return result;
+    }
+
+    onLog(`Transformando ${raw.length} registros...`);
+    const empresas = raw.map(transformarEmpresa);
+    
+    onLog(`Sincronizando com o banco de dados...`);
+    const { salvos, erros } = await salvarEmpresasNoSupabase(empresas);
+    
+    result.total_salvos = salvos;
+    result.total_erros = erros.length;
+    result.erros = erros;
+    onLog(`Sucesso: ${salvos} empresas alimentadas.`);
+  } catch (err: any) {
+    onLog(`Erro na sincronização: ${err.message}`);
+    result.erros.push(err.message);
+  }
+  return result;
+}

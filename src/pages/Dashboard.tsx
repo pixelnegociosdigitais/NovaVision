@@ -12,6 +12,7 @@ import { supabase } from '@/lib/supabase';
 import { registrarLog } from '@/lib/activity';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/contexts/PreferenceContext';
+import { executarETL } from '@/lib/etl';
 import type { Empresa } from '@/lib/types';
 
 // ─────────────────────────────────────────
@@ -215,6 +216,18 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
     }
   }, [uf, cities, apenasMei, dataInicio, dataFim, eixos]);
 
+  const alimentarFoco = async () => {
+    setLoading(true);
+    await executarETL({
+      fonte: 'brasilio',
+      uf: uf || undefined,
+      municipio: cities.length === 1 ? cities[0] : undefined,
+      apenas_mei: apenasMei,
+      limit: 200
+    }, (m) => console.log(`[Dashboard Sync] ${m}`));
+    await carregar();
+  };
+
   useEffect(() => { carregar(); }, [carregar]);
 
   const sincronia = lastSync
@@ -267,7 +280,12 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
               <div className="h-full flex flex-col items-center justify-center text-white/60">
                 <Building2 className="w-12 h-12 mb-3 opacity-30" />
                 <p className="text-sm">Nenhum dado de abertura disponível</p>
-                <p className="text-xs mt-1">Importe empresas via Central de Importação</p>
+                <button 
+                  onClick={alimentarFoco}
+                  className="mt-4 px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-xs font-bold rounded-lg hover:bg-brand-blue/20 transition-all"
+                >
+                  Alimentar Dashboard
+                </button>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -369,9 +387,14 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
               ) : recentes.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-8 py-16 text-center">
-                    <Building2 className="w-10 h-10 mx-auto mb-3 text-slate-700" />
-                    <p className="text-white/70 text-sm">Nenhuma empresa importada ainda.</p>
-                    <p className="text-white/60 text-xs mt-1">Acesse <strong className="text-white/70">Importar Dados</strong> na sidebar para iniciar.</p>
+                    <Building2 className="w-10 h-10 mx-auto mb-3 text-white/40" />
+                    <p className="text-white/70 text-sm font-semibold">Nenhuma empresa encontrada para este foco.</p>
+                    <button 
+                      onClick={alimentarFoco}
+                      className="mt-4 px-6 py-2.5 bg-brand-blue text-white text-xs font-bold rounded-xl hover:scale-105 transition-all shadow-lg shadow-brand-blue/20"
+                    >
+                      Alimentar Agora
+                    </button>
                   </td>
                 </tr>
               ) : (

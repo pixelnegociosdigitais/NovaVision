@@ -8,7 +8,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/contexts/PreferenceContext';
-import { buscarCidadesIbge } from '@/lib/etl';
+import { buscarCidadesIbge, executarETL, consultarEmpresas } from '@/lib/etl';
 
 const UFS = ['AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT',
   'PA', 'PB', 'PE', 'PI', 'PR', 'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO'];
@@ -102,12 +102,44 @@ export default function FocusSettings() {
     showSavedFeedback(newEixos.includes(eixo) ? `Eixo ${eixo} selecionado` : `Eixo ${eixo} removido`);
   };
 
-  const handleManualSave = () => {
+  const handleManualSave = async () => {
     setSaving(true);
-    setTimeout(() => {
+    setLastSaved('Sincronizando Inteligência...');
+    
+    try {
+      // 1. Verificar se já temos dados para este foco no Supabase
+      const res = await consultarEmpresas({
+        uf: uf || undefined,
+        municipios: cities.length > 0 ? cities : undefined,
+        eixos: eixos.length > 0 ? eixos : undefined,
+        apenas_mei: apenasMei || undefined,
+        por_pagina: 1
+      });
+
+      // 2. Se não houver dados (count 0), alimentar automaticamente via Brasil.IO
+      if (!res.count || res.count === 0) {
+        setLastSaved('Alimentando Dashboard...');
+        await executarETL({
+          fonte: 'brasilio',
+          uf: uf || undefined,
+          municipio: cities.length === 1 ? cities[0] : undefined,
+          apenas_mei: apenasMei,
+          limit: 100
+        }, (msg) => {
+          console.log(`[Focus Sync] ${msg}`);
+          if (msg.includes('Sucesso')) setLastSaved('Dashboard Alimentado!');
+        });
+      } else {
+        setLastSaved('Foco Atualizado!');
+        setTimeout(() => setLastSaved(null), 2000);
+      }
+    } catch (err) {
+      console.error('Erro ao alimentar foco:', err);
+      setLastSaved('Erro na sincronização');
+      setTimeout(() => setLastSaved(null), 3000);
+    } finally {
       setSaving(false);
-      showSavedFeedback('Configurações salvas');
-    }, 800);
+    }
   };
 
   return (
