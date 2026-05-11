@@ -314,35 +314,27 @@ export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: s
 // ─────────────────────────────────────────
 // Buscar cidades únicas por estado no banco
 // ─────────────────────────────────────────
-export async function buscarCidadesPorEstado(uf: string) {
-  if (!uf) return [];
-  console.log('Buscando cidades para UF:', uf);
+export async function buscarCidadesSugestao(uf: string, termo: string) {
+  if (!uf || !termo || termo.length < 2) return [];
+  
   const { data, error } = await supabase
     .from('empresas')
     .select('municipio')
     .eq('uf', uf.toUpperCase())
-    .not('municipio', 'is', null)
-    .order('municipio', { ascending: true });
+    .ilike('municipio', `%${termo}%`)
+    .limit(100);
 
   if (error) {
-    console.error('Erro ao buscar cidades:', error);
-    return [];
-  }
-  
-  if (!data || data.length === 0) {
-    console.log('Nenhuma cidade encontrada para UF:', uf);
+    console.error('Erro ao buscar sugestões de cidades:', error);
     return [];
   }
 
-  // Remover duplicatas e normalizar
   const cidadesSet = new Set<string>();
-  data.forEach(item => {
+  data?.forEach(item => {
     if (item.municipio) {
       cidadesSet.add(item.municipio.toUpperCase().trim());
     }
   });
-  
-  const result = Array.from(cidadesSet);
-  console.log(`Encontradas ${result.length} cidades únicas para ${uf}`);
-  return result;
+
+  return Array.from(cidadesSet).sort();
 }
