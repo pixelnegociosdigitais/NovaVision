@@ -177,3 +177,10 @@ WHERE data_abertura IS NOT NULL
   AND data_abertura >= NOW() - INTERVAL '12 months'
 GROUP BY mes
 ORDER BY mes ASC;
+-- ─────────────────────────────────────────
+-- Função para obter tamanho do banco (MB)
+-- ─────────────────────────────────────────
+CREATE OR REPLACE FUNCTION public.get_database_size()
+RETURNS float AS $$
+  SELECT pg_database_size(current_database()) / (1024 * 1024)::float;
+$$ LANGUAGE sql SECURITY DEFINER;

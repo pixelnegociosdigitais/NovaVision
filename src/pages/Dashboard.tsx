@@ -1,18 +1,19 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Building2, TrendingUp, Users, MapPin,
-  Calendar, RefreshCw, ArrowUpRight, Zap, BarChart3
+  Calendar, RefreshCw, ArrowUpRight, Zap, BarChart3,
+  Database, HardDrive, AlertTriangle
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, Cell
+  ResponsiveContainer
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '@/lib/supabase';
 import { registrarLog } from '@/lib/activity';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/contexts/PreferenceContext';
-import { executarETL } from '@/lib/etl';
+import { executarETL, getDatabaseSize } from '@/lib/etl';
 import type { Empresa } from '@/lib/types';
 
 // ─────────────────────────────────────────
@@ -41,11 +42,6 @@ const EIXO_COLORS: Record<string, string> = {
   'Financeiro':  '#e879f9',
   'Turismo':     '#38bdf8',
   'Outro':       '#64748b',
-};
-
-const MESES: Record<string, string> = {
-  '01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun',
-  '07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez',
 };
 
 // ─────────────────────────────────────────
@@ -134,6 +130,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
   const [mensal, setMensal] = useState<MensalItem[]>([]);
   const [eixosStats, setEixosStats] = useState<EixoItem[]>([]);
   const [recentes, setRecentes] = useState<Empresa[]>([]);
+  const [dbSize, setDbSize] = useState<number>(0);
+  const [isAdmin] = useState(true);
 
   const carregar = useCallback(async (manual = false) => {
     setLoading(true);
@@ -157,7 +155,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       };
 
       // Estatísticas em paralelo
-      const [rTotal, r7, r30, r90, rMei, rRecentes, rMensal, rEixo] = await Promise.all([
+      const [rTotal, r7, r30, r90, rMei, rRecentes, rMensal, rEixo, size] = await Promise.all([
         applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true })),
         applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7))),
         applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30))),
@@ -169,6 +167,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
           .gte('data_abertura', fmt(new Date(hoje.getFullYear(), hoje.getMonth() - 11, 1)))
           .not('data_abertura', 'is', null),
         applyPref(supabase.from('empresas').select('eixo_economico')).not('eixo_economico', 'is', null),
+        getDatabaseSize()
       ]);
 
       setStats({
@@ -180,8 +179,13 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       });
 
       setRecentes((rRecentes.data || []) as Empresa[]);
+      setDbSize(size);
 
       // Agrupa crescimento mensal
+      const MESES: Record<string, string> = {
+        '01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun',
+        '07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez',
+      };
       const mensalMap: Record<string, number> = {};
       (rMensal.data || []).forEach((e: any) => {
         if (!e.data_abertura) return;
@@ -239,19 +243,48 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Panorama Executivo</h1>
-          <p className="text-white/80 font-sans">{sincronia} • Dados do banco Nova Vision</p>
+          <div className="flex items-center gap-4 text-slate-500 font-sans font-medium text-sm">
+            <span>{sincronia}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+            <div className="flex items-center gap-1.5">
+              <Database className="w-3.5 h-3.5" />
+              <span>Dados do banco Nova Vision</span>
+            </div>
+          </div>
         </div>
-        <button
-          onClick={() => carregar(true)}
-          disabled={loading}
-          className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
-        >
-          <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
-          Atualizar
-        </button>
+
+        {isAdmin && (
+          <div className="glass-panel px-6 py-4 rounded-3xl flex items-center gap-5 border-white/5 hover:border-brand-blue/30 transition-all group">
+            <div className={cn(
+              "p-3 rounded-2xl",
+              dbSize > 400 ? "bg-red-500/10 text-red-400" : "bg-brand-blue/10 text-brand-blue"
+            )}>
+              <HardDrive className="w-5 h-5" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Armazenamento Supabase</span>
+                {dbSize > 400 && <AlertTriangle className="w-3 h-3 text-red-400 animate-pulse" />}
+              </div>
+              <div className="flex items-end gap-2">
+                <span className="text-lg font-display font-bold text-white">{dbSize.toFixed(1)} MB</span>
+                <span className="text-xs text-slate-600 font-bold mb-1">/ 500 MB</span>
+              </div>
+              <div className="w-32 h-1 bg-white/5 rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full transition-all duration-1000",
+                    dbSize > 400 ? "bg-red-400" : "bg-brand-blue"
+                  )} 
+                  style={{ width: `${(dbSize / 500) * 100}%` }} 
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Stat Cards */}

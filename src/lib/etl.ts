@@ -308,3 +308,12 @@ export async function executarETL(config: ETLConfig, onLog: (m: string) => void)
   }
   return result;
 }
+
+export async function getDatabaseSize(): Promise<number> {
+  const { data, error } = await supabase.rpc('get_database_size');
+  if (error) {
+    console.error('Erro ao buscar tamanho do banco:', error);
+    return 0;
+  }
+  return data || 0;
+}
