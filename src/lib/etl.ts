@@ -73,42 +73,35 @@ export function transformarEmpresa(raw: any): Empresa {
   };
 }
 
-export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
-  const token = import.meta.env.VITE_BRASILIO_TOKEN;
-  if (!token) throw new Error('Token Brasil.IO não configurado.');
+export async function buscarDosBrasilIO(config: ETLConfig, page = 1): Promise<any[]> {
+  const t = import.meta.env.VITE_BRASILIO_TOKEN;
+  if (!t) throw new Error('Token do Brasil.IO não configurado');
 
   const params = new URLSearchParams();
-  if (config.municipio) {
-    const normalized = config.municipio
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toUpperCase();
-    params.append('municipio', normalized);
-  }
   if (config.uf) params.append('uf', config.uf.toUpperCase());
+  if (config.municipio) params.append('municipio', config.municipio.toUpperCase());
   if (config.cnae_prefix) params.append('cnae_fiscal__startswith', config.cnae_prefix);
   if (config.data_inicio) params.append('data_inicio_atividade__gte', config.data_inicio);
   if (config.data_fim) params.append('data_inicio_atividade__lte', config.data_fim);
-  params.append('ordering', '-data_inicio_atividade');
+  if (config.apenas_mei) params.append('opcao_pelo_mei', 'True');
+  
   params.append('format', 'json');
+  params.append('page', String(page));
   params.append('page_size', String(config.limit || 100));
 
   const url = `/api/brasilio/v1/dataset/socios-brasil/empresas/data/?${params.toString()}`;
 
   const response = await fetch(url, {
-    headers: {
-      Authorization: `Token ${token}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Authorization': `Token ${t}` }
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Brasil.IO erro ${response.status}: ${text.substring(0, 200)}`);
+    const error = await response.json();
+    throw new Error(error.detail || 'Erro na API Brasil.IO');
   }
 
   const data = await response.json();
-  return data.results || data || [];
+  return data.results || [];
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -267,43 +260,60 @@ export async function buscarCidadesSugestao(uf: string, termo: string) {
 export async function executarETL(config: ETLConfig, onLog: (m: string) => void): Promise<ETLResult> {
   const result: ETLResult = { total_buscados: 0, total_salvos: 0, total_erros: 0, erros: [], empresas: [] };
   try {
-    onLog(`Buscando dados no Brasil.IO para ${config.municipio || config.uf || 'Brasil'}...`);
-    const raw = await buscarDosBrasilIO(config);
-    result.total_buscados = raw.length;
+    const pagesToFetch = config.limit && config.limit > 100 ? Math.ceil(config.limit / 100) : 1;
+    const allRaw: any[] = [];
+
+    onLog(`🚀 Iniciando importação (${pagesToFetch} página(s))...`);
+
+    for (let p = 1; p <= pagesToFetch; p++) {
+      onLog(`🔍 Buscando página ${p} no Brasil.IO...`);
+      const raw = await buscarDosBrasilIO(config, p);
+      allRaw.push(...raw);
+      if (raw.length < (config.limit || 100)) break; // Fim dos dados
+    }
+
+    result.total_buscados = allRaw.length;
     
-    if (raw.length === 0) {
+    if (allRaw.length === 0) {
       onLog('Nenhum dado novo encontrado para este filtro.');
       return result;
     }
 
-    onLog(`Transformando e enriquecendo ${raw.length} registros via BrasilAPI...`);
+    onLog(`📦 Transformando e enriquecendo ${allRaw.length} registros via BrasilAPI...`);
     
     const empresas: Empresa[] = [];
-    for (let i = 0; i < raw.length; i++) {
-      const item = raw[i];
-      onLog(`[${i + 1}/${raw.length}] Detalhando: ${item.razao_social || item.cnpj}...`);
+    // No modo Massa (Bulk), limitamos o enriquecimento para os primeiros 20 para ser rápido
+    // ou detalhamos todos se o limite for baixo.
+    const limitEnrich = allRaw.length > 50 ? 20 : allRaw.length;
+
+    for (let i = 0; i < allRaw.length; i++) {
+      const item = allRaw[i];
       
       try {
-        const details = await buscarPorCnpjBrasilAPI(item.cnpj);
-        empresas.push(transformarEmpresa({ ...item, ...details }));
-        // Delay sutil para evitar rate limit
-        await sleep(300);
+        if (i < limitEnrich) {
+          onLog(`[${i + 1}/${allRaw.length}] Detalhando: ${item.razao_social || item.cnpj}...`);
+          const details = await buscarPorCnpjBrasilAPI(item.cnpj);
+          empresas.push(transformarEmpresa({ ...item, ...details }));
+          await sleep(350);
+        } else {
+          // Para o restante do bulk, salva o dado básico do Brasil.IO
+          empresas.push(transformarEmpresa(item));
+        }
       } catch (err) {
-        console.error(`Erro ao detalhar ${item.cnpj}:`, err);
         empresas.push(transformarEmpresa(item));
       }
     }
     
-    onLog(`Sincronizando ${empresas.length} empresas com o banco de dados...`);
+    onLog(`💾 Sincronizando ${empresas.length} empresas com o Supabase...`);
     const { salvos, erros } = await salvarEmpresasNoSupabase(empresas);
     
     result.total_salvos = salvos;
     result.total_erros = erros.length;
     result.erros = erros;
     result.empresas = empresas;
-    onLog(`Sucesso: ${salvos} empresas alimentadas e detalhadas.`);
+    onLog(`✅ Sucesso: ${salvos} empresas sincronizadas.`);
   } catch (err: any) {
-    onLog(`Erro na sincronização: ${err.message}`);
+    onLog(`❌ Erro: ${err.message}`);
     result.erros.push(err.message);
   }
   return result;

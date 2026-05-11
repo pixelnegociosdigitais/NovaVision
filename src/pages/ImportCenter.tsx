@@ -30,7 +30,7 @@ const EIXOS_CNAE = [
   { label: 'Todos os setores', value: '' },
 ];
 
-const LIMITS = [25, 50, 100, 200, 500];
+const LIMITS = [25, 50, 100, 200, 500, 1000, 2000];
 
 // ─────────────────────────────────────────
 // Sub-componentes
