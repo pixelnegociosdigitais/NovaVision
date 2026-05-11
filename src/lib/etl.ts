@@ -113,7 +113,11 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
 
 export async function buscarPorCnpjBrasilAPI(cnpj: string): Promise<any> {
   const cleanCnpj = cnpj.replace(/\D/g, '');
-  const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`);
+  // Usando AllOrigins como proxy reverso para evitar erro de CORS no navegador
+  const url = `https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+  
+  const response = await fetch(proxyUrl);
   if (!response.ok) throw new Error('Empresa não encontrada na BrasilAPI');
   return response.json();
 }
