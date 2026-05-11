@@ -3,7 +3,7 @@ import {
   User, Lock, Bell, Eye, ShieldCheck, ChevronRight, Globe,
   Mail, Smartphone, CreditCard, Settings, LogOut, Camera,
   Clock, Activity, Loader2
-} from 'lucide-center'; // Fix: should be lucide-react, wait... I saw 'lucide-center' in my thought but it's 'lucide-react'
+} from 'lucide-react';
 import {
   Plus, X, MapPin, Info, CheckCircle2
 } from 'lucide-react';
