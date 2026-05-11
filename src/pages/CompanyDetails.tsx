@@ -52,8 +52,8 @@ function calcularIdade(dataAbertura?: string | null): string {
   const totalMeses = anos * 12 + meses;
   if (totalMeses < 12) return `${totalMeses} meses`;
   const a = Math.floor(totalMeses / 12);
-  const m = totalMoses % 12;
-  return totalMeses % 12 > 0 ? `${Math.floor(totalMeses / 12)} anos e ${totalMeses % 12} meses` : `${Math.floor(totalMeses / 12)} anos`;
+  const m = totalMeses % 12;
+  return m > 0 ? `${a} anos e ${m} meses` : `${a} anos`;
 }
 
 interface CompanyDetailsProps {

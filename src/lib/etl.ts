@@ -104,6 +104,13 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   return data.results || data || [];
 }
 
+export async function buscarPorCnpjBrasilAPI(cnpj: string): Promise<any> {
+  const cleanCnpj = cnpj.replace(/\D/g, '');
+  const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cleanCnpj}`);
+  if (!response.ok) throw new Error('Empresa não encontrada na BrasilAPI');
+  return response.json();
+}
+
 export async function salvarEmpresasNoSupabase(empresas: Empresa[]): Promise<{ salvos: number; erros: string[] }> {
   const erros: string[] = [];
   let salvos = 0;
