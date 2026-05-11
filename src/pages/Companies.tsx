@@ -92,11 +92,11 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
   const handleFiltro = () => { setPagina(1); carregar(); };
 
   const limparFiltros = () => {
-    setUf(''); setEixo(''); setApenasAtivas(false); setApenasMei(false);
+    setUf(''); setEixo(''); setApenasMei(false);
     setBusca(''); setBuscaInput(''); setPagina(1);
   };
 
-  const hasFilters = uf || eixo || apenasAtivas || apenasMei || busca;
+  const hasFilters = uf || eixo || apenasMei || busca;
 
   return (
     <div className="space-y-8">
