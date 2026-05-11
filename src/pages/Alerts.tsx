@@ -172,13 +172,13 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
             </label>
             {tipo === 'estado' ? (
               <select value={valor} onChange={e => setValor(e.target.value)} required
-                className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all">
+                className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black">
                 <option value="">Selecione um estado</option>
                 {UFS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             ) : tipo === 'eixo' ? (
               <select value={valor} onChange={e => setValor(e.target.value)} required
-                className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all">
+                className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black">
                 <option value="">Selecione um eixo</option>
                 {EIXOS.map(e => <option key={e} value={e}>{e}</option>)}
               </select>

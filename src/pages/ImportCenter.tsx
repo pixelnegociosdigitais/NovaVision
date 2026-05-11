@@ -59,7 +59,7 @@ function SelectField({ label, icon: Icon, value, onChange, children }: any) {
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue/50 transition-all cursor-pointer"
+          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue/50 transition-all cursor-pointer [&>option]:text-black"
         >
           {children}
         </select>

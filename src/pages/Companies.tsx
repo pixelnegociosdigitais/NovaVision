@@ -149,7 +149,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                         <select
                           value={uf}
                           onChange={e => { setUf(e.target.value); setPagina(1); }}
-                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all"
+                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black"
                         >
                           <option value="">Todos os estados</option>
                           {UFS.map(u => <option key={u} value={u}>{u}</option>)}
@@ -165,7 +165,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                         <select
                           value={eixo}
                           onChange={e => { setEixo(e.target.value); setPagina(1); }}
-                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all"
+                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black"
                         >
                           <option value="">Todos os eixos</option>
                           {EIXOS.map(e => <option key={e} value={e}>{e}</option>)}
