@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { consultarEmpresas } from '@/lib/etl';
+import { usePreferences } from '@/contexts/PreferenceContext';
 import type { Empresa } from '@/lib/types';
 
 const UFS = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
@@ -42,18 +43,18 @@ function formatCnpj(cnpj?: string) {
 interface CompaniesProps { onSelectCompany: (c: any) => void; }
 
 export default function Companies({ onSelectCompany }: CompaniesProps) {
+  const { uf: prefUf, cities: prefCities, isFiltered: prefActive } = usePreferences();
   const [empresas, setEmpresas]       = useState<Empresa[]>([]);
   const [total, setTotal]             = useState(0);
   const [loading, setLoading]         = useState(true);
   const [pagina, setPagina]           = useState(1);
   const POR_PAGINA = 20;
 
-  // Filtros
+  // Filtros Locais
   const [busca, setBusca]             = useState('');
   const [buscaInput, setBuscaInput]   = useState('');
   const [uf, setUf]                   = useState('');
   const [eixo, setEixo]               = useState('');
-  const [apenasAtivas, setApenasAtivas] = useState(false);
   const [apenasMei, setApenasMei]     = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
 
@@ -62,7 +63,8 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
     try {
       const res = await consultarEmpresas({
         busca:      busca || undefined,
-        uf:         uf    || undefined,
+        uf:         prefUf || uf || undefined,
+        municipios: prefCities.length > 0 ? prefCities : undefined,
         eixo:       eixo  || undefined,
         apenas_mei: apenasMei || undefined,
         pagina,
@@ -75,7 +77,7 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
     } finally {
       setLoading(false);
     }
-  }, [busca, uf, eixo, apenasMei, pagina]);
+  }, [busca, uf, prefUf, prefCities, eixo, apenasMei, pagina]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
@@ -144,12 +146,18 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                   <div className="px-5 pb-5 space-y-5 border-t border-white/5 pt-4">
                     {/* UF */}
                     <div className="space-y-2">
-                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">Estado (UF)</label>
+                      <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">
+                        Estado (UF) {prefUf && <span className="text-brand-blue text-[8px] ml-1">(Foco Ativo)</span>}
+                      </label>
                       <div className="relative">
                         <select
-                          value={uf}
+                          value={prefUf || uf}
+                          disabled={!!prefUf}
                           onChange={e => { setUf(e.target.value); setPagina(1); }}
-                          className="w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black"
+                          className={cn(
+                            "w-full appearance-none bg-white/5 border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/30 transition-all [&>option]:text-black",
+                            prefUf && "opacity-50 cursor-not-allowed border-brand-blue/30"
+                          )}
                         >
                           <option value="">Todos os estados</option>
                           {UFS.map(u => <option key={u} value={u}>{u}</option>)}
@@ -157,6 +165,18 @@ export default function Companies({ onSelectCompany }: CompaniesProps) {
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
                       </div>
                     </div>
+
+                    {/* Cidades (Exibição apenas se foco ativo) */}
+                    {prefCities.length > 0 && (
+                       <div className="space-y-2">
+                         <label className="text-xs font-display font-bold text-brand-purple uppercase tracking-widest">Cidades Focadas</label>
+                         <div className="flex flex-wrap gap-1.5">
+                            {prefCities.map(c => (
+                              <span key={c} className="bg-brand-purple/10 text-brand-purple text-[9px] font-bold px-2 py-0.5 rounded border border-brand-purple/20 uppercase">{c}</span>
+                            ))}
+                         </div>
+                       </div>
+                    )}
 
                     {/* Eixo */}
                     <div className="space-y-2">

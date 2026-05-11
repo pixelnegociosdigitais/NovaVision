@@ -231,6 +231,7 @@ export async function executarETL(
 // ─────────────────────────────────────────
 export async function consultarEmpresas(filtros: {
   municipio?: string;
+  municipios?: string[];
   uf?: string;
   cnae_prefix?: string;
   eixo?: string;
@@ -251,8 +252,14 @@ export async function consultarEmpresas(filtros: {
     .range(from, to)
     .order('data_abertura', { ascending: false });
 
-  if (filtros.municipio) query = query.ilike('municipio', `%${filtros.municipio}%`);
   if (filtros.uf) query = query.eq('uf', filtros.uf.toUpperCase());
+  
+  if (filtros.municipios && filtros.municipios.length > 0) {
+    query = query.in('municipio', filtros.municipios.map(m => m.toUpperCase()));
+  } else if (filtros.municipio) {
+    query = query.ilike('municipio', `%${filtros.municipio}%`);
+  }
+
   if (filtros.eixo) query = query.eq('eixo_economico', filtros.eixo);
   if (filtros.data_inicio) query = query.gte('data_abertura', filtros.data_inicio);
   if (filtros.data_fim) query = query.lte('data_abertura', filtros.data_fim);
@@ -272,7 +279,7 @@ export async function consultarEmpresas(filtros: {
 // ─────────────────────────────────────────
 // Estatísticas rápidas para o Dashboard
 // ─────────────────────────────────────────
-export async function buscarEstatisticas() {
+export async function buscarEstatisticas(filtros?: { uf?: string; municipios?: string[] }) {
   const hoje = new Date();
   const d7 = new Date(hoje); d7.setDate(hoje.getDate() - 7);
   const d30 = new Date(hoje); d30.setDate(hoje.getDate() - 30);
@@ -280,11 +287,20 @@ export async function buscarEstatisticas() {
 
   const fmt = (d: Date) => d.toISOString().split('T')[0];
 
+  const applyBaseFilters = (q: any) => {
+    let query = q;
+    if (filtros?.uf) query = query.eq('uf', filtros.uf.toUpperCase());
+    if (filtros?.municipios && filtros.municipios.length > 0) {
+      query = query.in('municipio', filtros.municipios.map(m => m.toUpperCase()));
+    }
+    return query;
+  };
+
   const [total, abertas7, abertas30, abertas90] = await Promise.all([
-    supabase.from('empresas').select('id', { count: 'exact', head: true }),
-    supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7)),
-    supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30)),
-    supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d90)),
+    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true })),
+    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7))),
+    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30))),
+    applyBaseFilters(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d90))),
   ]);
 
   return {

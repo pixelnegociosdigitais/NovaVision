@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import TestMei from './pages/TestMei';
 import ImportCenter from './pages/ImportCenter';
 import Plans from './pages/Plans';
+import { PreferenceProvider } from './contexts/PreferenceContext';
 import type { Empresa } from './lib/types';
 
 export default function App() {
@@ -52,8 +53,10 @@ export default function App() {
   }
 
   return (
-    <DashboardLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
-      {renderPage()}
-    </DashboardLayout>
+    <PreferenceProvider>
+      <DashboardLayout currentPage={currentPage} setCurrentPage={setCurrentPage}>
+        {renderPage()}
+      </DashboardLayout>
+    </PreferenceProvider>
   );
 }

@@ -6,6 +6,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { usePreferences } from '@/contexts/PreferenceContext';
 
 interface CityStat {
   municipio: string;
@@ -16,6 +17,7 @@ interface CityStat {
 }
 
 export default function EconomicMap() {
+  const { uf, cities } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<CityStat[]>([]);
   const [busca, setBusca] = useState('');
@@ -25,10 +27,15 @@ export default function EconomicMap() {
       setLoading(true);
       try {
         // Busca contagem por município
-        const { data, error } = await supabase
+        let query = supabase
           .from('empresas')
           .select('municipio, uf')
           .not('municipio', 'is', null);
+
+        if (uf) query = query.eq('uf', uf.toUpperCase());
+        if (cities.length > 0) query = query.in('municipio', cities.map(c => c.toUpperCase()));
+
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -53,7 +60,7 @@ export default function EconomicMap() {
       }
     }
     loadStats();
-  }, []);
+  }, [uf, cities]);
 
   const totalEmpresas = stats.reduce((acc, s) => acc + s.count, 0);
   const filtrados = stats.filter(s =>

@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '@/lib/supabase';
 import { registrarLog } from '@/lib/activity';
 import { cn } from '@/lib/utils';
+import { usePreferences } from '@/contexts/PreferenceContext';
 import type { Empresa } from '@/lib/types';
 
 // ─────────────────────────────────────────
@@ -125,6 +126,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onSelectCompany }: DashboardProps) {
+  const { uf, cities } = usePreferences();
   const [loading, setLoading] = useState(true);
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [stats, setStats] = useState<Stats>({ total: 0, abertas_7d: 0, abertas_30d: 0, abertas_90d: 0, total_mei: 0 });
@@ -142,19 +144,26 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       const d30 = new Date(hoje); d30.setDate(hoje.getDate() - 30);
       const d90 = new Date(hoje); d90.setDate(hoje.getDate() - 90);
 
+      const applyPref = (q: any) => {
+        let query = q;
+        if (uf) query = query.eq('uf', uf.toUpperCase());
+        if (cities.length > 0) query = query.in('municipio', cities.map(c => c.toUpperCase()));
+        return query;
+      };
+
       // Estatísticas em paralelo
       const [rTotal, r7, r30, r90, rMei, rRecentes, rMensal, rEixo] = await Promise.all([
-        supabase.from('empresas').select('id', { count: 'exact', head: true }),
-        supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7)),
-        supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30)),
-        supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d90)),
-        supabase.from('empresas').select('id', { count: 'exact', head: true }).eq('opcao_pelo_mei', true),
-        supabase.from('empresas').select('cnpj,razao_social,nome_fantasia,municipio,uf,eixo_economico,data_abertura,descricao_situacao_cadastral')
+        applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true })),
+        applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d7))),
+        applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d30))),
+        applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).gte('data_abertura', fmt(d90))),
+        applyPref(supabase.from('empresas').select('id', { count: 'exact', head: true }).eq('opcao_pelo_mei', true)),
+        applyPref(supabase.from('empresas').select('cnpj,razao_social,nome_fantasia,municipio,uf,eixo_economico,data_abertura,descricao_situacao_cadastral'))
           .order('data_abertura', { ascending: false }).limit(8),
-        supabase.from('empresas').select('data_abertura')
+        applyPref(supabase.from('empresas').select('data_abertura'))
           .gte('data_abertura', fmt(new Date(hoje.getFullYear(), hoje.getMonth() - 11, 1)))
           .not('data_abertura', 'is', null),
-        supabase.from('empresas').select('eixo_economico').not('eixo_economico', 'is', null),
+        applyPref(supabase.from('empresas').select('eixo_economico')).not('eixo_economico', 'is', null),
       ]);
 
       setStats({
@@ -200,7 +209,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [uf, cities]);
 
   useEffect(() => { carregar(); }, [carregar]);
 
