@@ -116,6 +116,14 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
       <main className="flex-1 ml-64 min-h-screen flex flex-col">
         {/* Topbar */}
         <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 sticky top-0 bg-brand-black/50 backdrop-blur-xl z-40">
+          <div className="flex items-center gap-4 flex-1">
+            <div className="relative w-full max-w-md group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-brand-blue transition-colors" />
+              <input 
+                type="text" 
+                placeholder="Busca Inteligente (CNPJ, Razão Social...)"
+                className="w-full bg-white/5 border border-white/5 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:border-brand-blue/50 focus:ring-4 focus:ring-brand-blue/10 transition-all font-sans"
+              />
             </div>
           </div>
 
