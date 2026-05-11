@@ -148,6 +148,24 @@ CREATE INDEX IF NOT EXISTS idx_alertas_tipo  ON public.alertas (tipo);
 CREATE INDEX IF NOT EXISTS idx_alertas_ativo ON public.alertas (ativo);
 
 -- ─────────────────────────────────────────
+-- Tabela de Logs de Atividade
+-- ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.activity_logs (
+  id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  usuario_id  TEXT DEFAULT 'alexandre_silva', -- Mocked for now
+  acao        TEXT NOT NULL,
+  entidade    TEXT,
+  detalhes    JSONB,
+  ip_address  TEXT,
+  criado_em   TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Logs públicos" ON public.activity_logs FOR ALL USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_logs_criado_em ON public.activity_logs (criado_em);
+
+-- ─────────────────────────────────────────
 -- View de crescimento mensal (mantida)
 -- ─────────────────────────────────────────
 CREATE OR REPLACE VIEW public.vw_crescimento_mensal AS

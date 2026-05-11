@@ -7,6 +7,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { registrarLog } from '@/lib/activity';
 
 // ─────────────────────────────────────────
 // Tipos
@@ -266,17 +267,24 @@ export default function Alerts() {
       criado_em: new Date().toISOString(),
       total_disparos: 0,
     }]);
-    if (!error) carregar();
+    if (!error) {
+      carregar();
+      registrarLog('Criou Alerta', `${dados.tipo}: ${dados.valor}`);
+    }
   };
 
   const toggleAlerta = async (id: string, ativo: boolean) => {
+    const alerta = alertas.find(a => a.id === id);
     await supabase.from('alertas').update({ ativo: !ativo }).eq('id', id);
     setAlertas(prev => prev.map(a => a.id === id ? { ...a, ativo: !ativo } : a));
+    registrarLog(ativo ? 'Pausou Alerta' : 'Ativou Alerta', alerta ? `${alerta.tipo}: ${alerta.valor}` : undefined);
   };
 
   const excluirAlerta = async (id: string) => {
+    const alerta = alertas.find(a => a.id === id);
     await supabase.from('alertas').delete().eq('id', id);
     setAlertas(prev => prev.filter(a => a.id !== id));
+    registrarLog('Excluiu Alerta', alerta ? `${alerta.tipo}: ${alerta.valor}` : undefined);
   };
 
   const filtrados = alertas.filter(a => !filtroTipo || a.tipo === filtroTipo);

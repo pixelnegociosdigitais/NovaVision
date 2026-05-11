@@ -9,6 +9,7 @@ import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { buscarPorCnpjBrasilAPI, detectarEixo } from '@/lib/etl';
+import { registrarLog } from '@/lib/activity';
 import type { Empresa } from '@/lib/types';
 
 const EIXO_COLORS: Record<string, string> = {
@@ -74,6 +75,8 @@ export default function CompanyDetails({ empresa: empresaProp, onBack }: Company
       setIsFav(empresaProp.is_favorite || false);
       setLoading(false);
 
+      registrarLog('Visualizou Empresa', empresaProp.nome_fantasia || empresaProp.razao_social, { cnpj: empresaProp.cnpj });
+
       // Enriquece com dados da BrasilAPI se CNPJ disponível
       if (empresaProp.cnpj && !empresaProp.cnae_fiscal_descricao) {
         enriquecerDados(empresaProp.cnpj);
@@ -122,6 +125,7 @@ export default function CompanyDetails({ empresa: empresaProp, onBack }: Company
     const novoValor = !isFav;
     setIsFav(novoValor);
     await supabase.from('empresas').update({ is_favorite: novoValor }).eq('cnpj', empresa.cnpj);
+    registrarLog(novoValor ? 'Favoritou Empresa' : 'Removeu Favorito', empresa.nome_fantasia || empresa.razao_social);
   };
 
   if (loading) {

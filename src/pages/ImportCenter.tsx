@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { executarETL, buscarEstatisticas } from '@/lib/etl';
+import { registrarLog } from '@/lib/activity';
 import type { ETLConfig, ETLResult } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
@@ -142,11 +143,14 @@ export default function ImportCenter() {
     setLogs([]);
     setResult(null);
 
+    registrarLog('Iniciou Importação', `${config.municipio || config.uf || 'Geral'}`);
     addLog('🚀 Iniciando pipeline ETL Nova Vision...');
 
     const etlResult = await executarETL(config, addLog);
     setResult(etlResult);
     setIsRunning(false);
+
+    registrarLog('Finalizou Importação', `${config.municipio || config.uf || 'Geral'}`, { processados: etlResult.total_salvos, erros: etlResult.total_erros });
 
     // Atualizar estatísticas
     buscarEstatisticas().then(setStats).catch(() => {});

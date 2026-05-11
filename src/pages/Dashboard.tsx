@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
 import { supabase } from '@/lib/supabase';
+import { registrarLog } from '@/lib/activity';
 import { cn } from '@/lib/utils';
 import type { Empresa } from '@/lib/types';
 
@@ -131,8 +132,9 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
   const [eixos, setEixos] = useState<EixoItem[]>([]);
   const [recentes, setRecentes] = useState<Empresa[]>([]);
 
-  const carregar = useCallback(async () => {
+  const carregar = useCallback(async (manual = false) => {
     setLoading(true);
+    if (manual) registrarLog('Atualizou Dashboard');
     try {
       const hoje = new Date();
       const fmt = (d: Date) => d.toISOString().split('T')[0];
@@ -215,7 +217,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
           <p className="text-slate-400 font-sans">{sincronia} • Dados do banco Nova Vision</p>
         </div>
         <button
-          onClick={carregar}
+          onClick={() => carregar(true)}
           disabled={loading}
           className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all disabled:opacity-50"
         >

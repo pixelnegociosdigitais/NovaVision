@@ -13,8 +13,7 @@ import {
   HelpCircle,
   Search,
   User,
-  Download,
-  CreditCard
+  Download
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { cn } from '@/lib/utils';
