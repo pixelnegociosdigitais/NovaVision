@@ -63,12 +63,12 @@ export function transformarEmpresa(raw: any): Empresa {
     ddd_telefone_1: raw.ddd_telefone_1 ? `${raw.ddd_telefone_1}${raw.telefone_1 || ''}` : undefined,
     email: raw.email || undefined,
     descricao_porte: raw.descricao_porte || undefined,
-    opcao_pelo_mei: raw.opcao_pelo_mei === 'S' || raw.opcao_pelo_mei === true,
+    opcao_pelo_mei: raw.opcao_pelo_mei === 'S' || raw.opcao_pelo_mei === true || String(raw.codigo_natureza_juridica) === '2135' || String(raw.natureza_juridica) === '2135',
     opcao_pelo_simples: raw.opcao_pelo_simples === 'S' || raw.opcao_pelo_simples === true,
     capital_social: raw.capital_social ? parseFloat(raw.capital_social) : undefined,
     score_empresarial: score,
     potencial_comercial: classificarPotencial(score),
-    fonte: 'brasilapi',
+    fonte: raw.fonte || 'brasilio',
     importado_em: new Date().toISOString(),
   };
 }
@@ -78,11 +78,18 @@ export async function buscarDosBrasilIO(config: ETLConfig): Promise<any[]> {
   if (!token) throw new Error('Token Brasil.IO não configurado.');
 
   const params = new URLSearchParams();
-  if (config.municipio) params.append('municipio', config.municipio.toUpperCase());
+  if (config.municipio) {
+    const normalized = config.municipio
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase();
+    params.append('municipio', normalized);
+  }
   if (config.uf) params.append('uf', config.uf.toUpperCase());
   if (config.cnae_prefix) params.append('cnae_fiscal__startswith', config.cnae_prefix);
   if (config.data_inicio) params.append('data_inicio_atividade__gte', config.data_inicio);
   if (config.data_fim) params.append('data_inicio_atividade__lte', config.data_fim);
+  params.append('ordering', '-data_inicio_atividade');
   params.append('format', 'json');
   params.append('page_size', String(config.limit || 100));
 

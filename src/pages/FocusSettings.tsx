@@ -127,8 +127,10 @@ export default function FocusSettings() {
           fonte: 'brasilio',
           uf: uf || undefined,
           municipio: cities.length === 1 ? cities[0] : undefined,
+          data_inicio: dataInicio || undefined,
+          data_fim: dataFim || undefined,
           apenas_mei: apenasMei,
-          limit: 100
+          limit: 150
         }, (msg) => {
           console.log(`[Focus Sync] ${msg}`);
           if (msg.includes('Sucesso')) setLastSaved('Dashboard Alimentado!');

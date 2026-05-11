@@ -222,6 +222,8 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       fonte: 'brasilio',
       uf: uf || undefined,
       municipio: cities.length === 1 ? cities[0] : undefined,
+      data_inicio: dataInicio || undefined,
+      data_fim: dataFim || undefined,
       apenas_mei: apenasMei,
       limit: 200
     }, (m) => console.log(`[Dashboard Sync] ${m}`));
