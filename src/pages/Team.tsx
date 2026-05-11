@@ -35,7 +35,7 @@ function TeamMember({ member, onDelete }: { member: Member; onDelete: (id: strin
     >
       <div className="flex items-center gap-6">
         <div className="relative">
-          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display font-bold text-slate-400 text-lg overflow-hidden group-hover:border-brand-blue/30 transition-colors">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center font-display font-bold text-white/80 text-lg overflow-hidden group-hover:border-brand-blue/30 transition-colors">
             {member.name.split(' ').map(n => n[0]).join('')}
           </div>
           <div className={cn(
@@ -49,12 +49,12 @@ function TeamMember({ member, onDelete }: { member: Member; onDelete: (id: strin
             <h3 className="font-display font-bold text-white group-hover:text-brand-blue transition-colors">{member.name}</h3>
             <span className={cn(
               "text-[10px] font-display font-bold px-2 py-0.5 rounded-full uppercase tracking-widest",
-              member.role === 'Admin' ? "bg-brand-blue/10 text-brand-blue" : "bg-white/5 text-slate-500"
+              member.role === 'Admin' ? "bg-brand-blue/10 text-brand-blue" : "bg-white/5 text-white/70"
             )}>
               {member.role}
             </span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-slate-500 font-medium font-sans">
+          <div className="flex items-center gap-4 text-xs text-white/70 font-medium font-sans">
             <span className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> {member.email}</span>
             <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {member.lastActive}</span>
           </div>
@@ -62,12 +62,12 @@ function TeamMember({ member, onDelete }: { member: Member; onDelete: (id: strin
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all">
+        <button className="p-2.5 rounded-xl bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all">
           <Shield className="w-4 h-4" />
         </button>
         <button
           onClick={() => onDelete(member.id)}
-          className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
+          className="p-2.5 rounded-xl bg-white/5 text-white/70 hover:text-red-400 hover:bg-red-400/10 transition-all"
         >
           <X className="w-4 h-4" />
         </button>
@@ -103,10 +103,10 @@ export default function Team() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Equipe e Acessos</h1>
-          <p className="text-slate-400 font-sans">Controle de membros, cargos e atividade operacional do time</p>
+          <p className="text-white/80 font-sans">Controle de membros, cargos e atividade operacional do time</p>
         </div>
         <div className="flex gap-3">
-          <button className="glass-panel px-4 py-2.5 rounded-xl text-slate-300 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
+          <button className="glass-panel px-4 py-2.5 rounded-xl text-white/90 font-display font-semibold text-sm flex items-center gap-2 hover:bg-white/10 transition-all">
             <Filter className="w-4 h-4" /> Filtrar
           </button>
           <button
@@ -138,7 +138,7 @@ export default function Team() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-white">{group.label}</p>
-                      <p className="text-xs text-slate-500 font-medium">{group.count} membros</p>
+                      <p className="text-xs text-white/70 font-medium">{group.count} membros</p>
                     </div>
                   </div>
                 </div>
@@ -146,7 +146,7 @@ export default function Team() {
             </div>
 
             <div className="pt-6 border-t border-white/5">
-              <p className="text-xs text-slate-500 font-medium mb-4">Seu plano Enterprise permite até 25 membros. {25 - members.length} vagas restantes.</p>
+              <p className="text-xs text-white/70 font-medium mb-4">Seu plano Enterprise permite até 25 membros. {25 - members.length} vagas restantes.</p>
               <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
@@ -160,7 +160,7 @@ export default function Team() {
 
         <div className="lg:col-span-3 space-y-4">
           <div className="glass-panel p-2 rounded-2xl flex items-center gap-2 mb-2">
-            <Search className="ml-3 w-4 h-4 text-slate-500" />
+            <Search className="ml-3 w-4 h-4 text-white/70" />
             <input
               type="text"
               value={search}
@@ -179,7 +179,7 @@ export default function Team() {
             {filtered.length === 0 && (
               <div className="py-20 text-center glass-panel rounded-3xl border-dashed border-white/10">
                 <Users className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                <p className="text-slate-500 font-display">Nenhum membro encontrado.</p>
+                <p className="text-white/70 font-display">Nenhum membro encontrado.</p>
               </div>
             )}
           </div>

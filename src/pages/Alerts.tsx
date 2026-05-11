@@ -59,28 +59,28 @@ function AlertCard({ alerta, onToggle, onDelete }: { alerta: Alerta; onToggle: (
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4 flex-1 min-w-0">
           <div className={cn('p-3 rounded-xl shrink-0', alerta.ativo ? 'bg-brand-blue/10' : 'bg-white/5')}>
-            <Icon className={cn('w-5 h-5', alerta.ativo ? 'text-brand-blue' : 'text-slate-600')} />
+            <Icon className={cn('w-5 h-5', alerta.ativo ? 'text-brand-blue' : 'text-white/60')} />
           </div>
           <div className="space-y-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-display font-bold text-slate-500 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-lg">
+              <span className="text-[10px] font-display font-bold text-white/70 uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-lg">
                 {tipoInfo?.label}
               </span>
               {alerta.ativo ? (
                 <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Ativo</span>
               ) : (
-                <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Pausado</span>
+                <span className="text-[10px] text-white/60 font-bold uppercase tracking-widest">Pausado</span>
               )}
             </div>
             <h3 className="font-display font-bold text-white">{alerta.valor}</h3>
-            {alerta.descricao && <p className="text-sm text-slate-400">{alerta.descricao}</p>}
+            {alerta.descricao && <p className="text-sm text-white/80">{alerta.descricao}</p>}
             <div className="flex flex-wrap items-center gap-4 pt-1">
-              <span className="flex items-center gap-1.5 text-xs text-slate-500">
+              <span className="flex items-center gap-1.5 text-xs text-white/70">
                 <Clock className="w-3.5 h-3.5" />
                 Criado em {new Date(alerta.criado_em).toLocaleDateString('pt-BR')}
               </span>
               {alerta.ultimo_disparo && (
-                <span className="flex items-center gap-1.5 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5 text-xs text-white/70">
                   <Bell className="w-3.5 h-3.5" />
                   Último disparo: {new Date(alerta.ultimo_disparo).toLocaleDateString('pt-BR')}
                 </span>
@@ -96,13 +96,13 @@ function AlertCard({ alerta, onToggle, onDelete }: { alerta: Alerta; onToggle: (
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button onClick={onToggle} title={alerta.ativo ? 'Pausar' : 'Ativar'}
-            className="p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-all">
+            className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-all">
             {alerta.ativo
               ? <ToggleRight className="w-5 h-5 text-brand-blue" />
               : <ToggleLeft className="w-5 h-5" />}
           </button>
           <button onClick={onDelete} title="Excluir"
-            className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-400/10 transition-all">
+            className="p-2 rounded-lg text-white/70 hover:text-red-400 hover:bg-red-400/10 transition-all">
             <Trash2 className="w-4 h-4" />
           </button>
         </div>
@@ -143,7 +143,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
           <h2 className="font-display font-bold text-white text-lg flex items-center gap-2">
             <Plus className="w-5 h-5 text-brand-blue" /> Novo Alerta
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-500 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-2 text-white/70 hover:text-white transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -151,13 +151,13 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {/* Tipo */}
           <div className="space-y-2">
-            <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">Tipo de Alerta</label>
+            <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">Tipo de Alerta</label>
             <div className="grid grid-cols-2 gap-2">
               {TIPOS.map(t => (
                 <button key={t.value} type="button" onClick={() => { setTipo(t.value as any); setValor(''); }}
                   className={cn(
                     'flex items-center gap-2 p-3 rounded-xl border text-sm font-semibold transition-all',
-                    tipo === t.value ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-white/10 text-slate-400 hover:border-white/20'
+                    tipo === t.value ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-white/10 text-white/80 hover:border-white/20'
                   )}>
                   <t.icon className="w-4 h-4" /> {t.label}
                 </button>
@@ -167,7 +167,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
 
           {/* Valor */}
           <div className="space-y-2">
-            <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">
+            <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">
               {tipo === 'estado' ? 'Estado' : tipo === 'eixo' ? 'Eixo Econômico' : tipo === 'cnae' ? 'CNAE (código)' : 'Nome da Cidade'}
             </label>
             {tipo === 'estado' ? (
@@ -192,7 +192,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
 
           {/* Descrição */}
           <div className="space-y-2">
-            <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">Descrição (opcional)</label>
+            <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">Descrição (opcional)</label>
             <input type="text" value={desc} onChange={e => setDesc(e.target.value)}
               placeholder="Ex: Monitorar novas lojas em Marau"
               className="w-full bg-white/5 border border-white/10 text-slate-200 placeholder-slate-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all"
@@ -201,7 +201,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
 
           {/* Notificações */}
           <div className="space-y-2">
-            <label className="text-xs font-display font-bold text-slate-500 uppercase tracking-widest">Notificações</label>
+            <label className="text-xs font-display font-bold text-white/70 uppercase tracking-widest">Notificações</label>
             <div className="flex gap-3">
               {[
                 { label: 'E-mail', val: email, set: setEmail },
@@ -210,7 +210,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
                 <button key={label} type="button" onClick={() => set(!val)}
                   className={cn(
                     'flex-1 py-2.5 rounded-xl border text-sm font-semibold transition-all',
-                    val ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-white/10 text-slate-500 hover:border-white/20'
+                    val ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-white/10 text-white/70 hover:border-white/20'
                   )}>
                   {val ? '✓ ' : ''}{label}
                 </button>
@@ -220,7 +220,7 @@ function NovoAlertaModal({ onClose, onCreate }: { onClose: () => void; onCreate:
 
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 py-3 border border-white/10 rounded-xl text-slate-400 font-display font-semibold text-sm hover:bg-white/5 transition-all">
+              className="flex-1 py-3 border border-white/10 rounded-xl text-white/80 font-display font-semibold text-sm hover:bg-white/5 transition-all">
               Cancelar
             </button>
             <button type="submit" disabled={saving || !valor}
@@ -297,7 +297,7 @@ export default function Alerts() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div>
             <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Central de Alertas</h1>
-            <p className="text-slate-400">
+            <p className="text-white/80">
               {loading ? 'Carregando...' : `${ativos} alertas ativos de ${alertas.length} configurados`}
             </p>
           </div>
@@ -322,7 +322,7 @@ export default function Alerts() {
             { label: 'Por Eixo', value: alertas.filter(a => a.tipo === 'eixo').length, color: 'text-brand-purple', bg: 'bg-brand-purple/10' },
           ].map(({ label, value, color, bg }) => (
             <div key={label} className="glass-panel p-5 rounded-2xl">
-              <p className="text-xs font-display font-bold text-slate-500 uppercase tracking-wider mb-1">{label}</p>
+              <p className="text-xs font-display font-bold text-white/70 uppercase tracking-wider mb-1">{label}</p>
               <p className={cn('text-3xl font-display font-bold', color)}>{value}</p>
             </div>
           ))}
@@ -337,13 +337,13 @@ export default function Alerts() {
               </h3>
               <button onClick={() => setFiltro('')}
                 className={cn('w-full text-left p-3 rounded-xl text-sm font-semibold transition-all',
-                  !filtroTipo ? 'bg-brand-blue/10 text-brand-blue' : 'text-slate-400 hover:bg-white/5')}>
+                  !filtroTipo ? 'bg-brand-blue/10 text-brand-blue' : 'text-white/80 hover:bg-white/5')}>
                 Todos os alertas
               </button>
               {TIPOS.map(t => (
                 <button key={t.value} onClick={() => setFiltro(t.value)}
                   className={cn('w-full text-left p-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2',
-                    filtroTipo === t.value ? 'bg-brand-blue/10 text-brand-blue' : 'text-slate-400 hover:bg-white/5')}>
+                    filtroTipo === t.value ? 'bg-brand-blue/10 text-brand-blue' : 'text-white/80 hover:bg-white/5')}>
                   <t.icon className="w-4 h-4" /> {t.label}
                   <span className="ml-auto text-xs bg-white/5 px-2 py-0.5 rounded-lg">
                     {alertas.filter(a => a.tipo === t.value).length}
@@ -360,8 +360,8 @@ export default function Alerts() {
             ) : filtrados.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-3xl">
                 <Bell className="w-14 h-14 text-slate-700 mb-4" />
-                <h3 className="font-display font-bold text-slate-400 text-lg mb-1">Nenhum alerta configurado</h3>
-                <p className="text-slate-600 text-sm mb-6">Crie alertas para monitorar cidades, estados, CNAEs ou eixos econômicos</p>
+                <h3 className="font-display font-bold text-white/80 text-lg mb-1">Nenhum alerta configurado</h3>
+                <p className="text-white/60 text-sm mb-6">Crie alertas para monitorar cidades, estados, CNAEs ou eixos econômicos</p>
                 <button onClick={() => setShowModal(true)}
                   className="px-6 py-3 bg-brand-blue text-white rounded-xl font-display font-bold text-sm hover:scale-105 transition-all flex items-center gap-2">
                   <Plus className="w-4 h-4" /> Criar Primeiro Alerta

@@ -132,7 +132,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
   const [lastSync, setLastSync] = useState<Date | null>(null);
   const [stats, setStats] = useState<Stats>({ total: 0, abertas_7d: 0, abertas_30d: 0, abertas_90d: 0, total_mei: 0 });
   const [mensal, setMensal] = useState<MensalItem[]>([]);
-  const [eixos, setEixos] = useState<EixoItem[]>([]);
+  const [eixosStats, setEixosStats] = useState<EixoItem[]>([]);
   const [recentes, setRecentes] = useState<Empresa[]>([]);
 
   const carregar = useCallback(async (manual = false) => {
@@ -206,7 +206,7 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
         .sort(([, a], [, b]) => b - a)
         .slice(0, 6)
         .map(([name, value]) => ({ name, value, color: EIXO_COLORS[name] || '#64748b' }));
-      setEixos(eixoArr);
+      setEixosStats(eixoArr);
 
       setLastSync(new Date());
     } catch (err) {
@@ -317,15 +317,15 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
             <div className="space-y-4">
               {[1,2,3,4].map(i => <Skeleton key={i} className="h-8 w-full" />)}
             </div>
-          ) : eixos.length === 0 ? (
+          ) : eixosStats.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-white/60">
               <BarChart3 className="w-10 h-10 mb-2 opacity-30" />
               <p className="text-sm text-center">Importe dados para ver distribuição setorial</p>
             </div>
           ) : (
             <div className="space-y-5">
-              {eixos.map((item) => {
-                const max = eixos[0]?.value || 1;
+              {eixosStats.map((item) => {
+                const max = eixosStats[0]?.value || 1;
                 const pct = Math.round((item.value / max) * 100);
                 return (
                   <div key={item.name} className="space-y-2 group cursor-pointer">

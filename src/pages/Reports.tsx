@@ -19,7 +19,7 @@ interface Report {
 }
 
 const ReportChip = ({ label }: { label: string }) => (
-  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-display font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-display font-bold text-white/80 uppercase tracking-widest">{label}</span>
 );
 
 export default function Reports() {
@@ -96,7 +96,7 @@ export default function Reports() {
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Repositório de Relatórios</h1>
-          <p className="text-slate-400 font-sans">Documentação técnica, análises setoriais e datasets gerados pelo sistema</p>
+          <p className="text-white/80 font-sans">Documentação técnica, análises setoriais e datasets gerados pelo sistema</p>
         </div>
         <div className="flex gap-3">
           <button className="bg-brand-blue text-white px-5 py-2.5 rounded-xl font-display font-bold text-sm shadow-[0_0_20px_rgba(86,141,255,0.3)] hover:scale-105 transition-all flex items-center gap-2">
@@ -107,7 +107,7 @@ export default function Reports() {
 
       <div className="glass-panel p-2 rounded-2xl flex items-center gap-2">
         <div className="relative flex-1 group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-brand-blue transition-colors" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 group-focus-within:text-brand-blue transition-colors" />
           <input
             type="text"
             value={filter}
@@ -136,10 +136,10 @@ export default function Reports() {
                     onClick={() => setCategory(item.cat as any)}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-xl transition-all group",
-                      category === item.cat ? "bg-brand-purple/10 text-brand-purple" : "hover:bg-white/5 text-slate-400"
+                      category === item.cat ? "bg-brand-purple/10 text-brand-purple" : "hover:bg-white/5 text-white/80"
                     )}
                   >
-                     <item.icon className={cn("w-4 h-4", category === item.cat ? "text-brand-purple" : "text-slate-500 group-hover:text-brand-purple transition-colors")} />
+                     <item.icon className={cn("w-4 h-4", category === item.cat ? "text-brand-purple" : "text-white/70 group-hover:text-brand-purple transition-colors")} />
                      <span className={cn("text-sm font-medium", category === item.cat ? "text-white" : "group-hover:text-slate-200 transition-colors")}>{item.label}</span>
                   </button>
                 ))}
@@ -150,7 +150,7 @@ export default function Reports() {
              <h3 className="font-display font-bold text-white text-sm">Armazenamento Cloud</h3>
              <div className="space-y-2">
                 <div className="flex justify-between text-xs">
-                   <span className="text-slate-500">2.4 GB de 10 GB</span>
+                   <span className="text-white/70">2.4 GB de 10 GB</span>
                    <span className="text-slate-200 font-bold">24%</span>
                 </div>
                 <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
@@ -173,7 +173,7 @@ export default function Reports() {
            ) : filtrados.length === 0 ? (
              <div className="py-20 text-center glass-panel rounded-3xl space-y-4 border-dashed border-white/10">
                 <FileSearch className="w-12 h-12 text-slate-700 mx-auto" />
-                <p className="text-slate-500 font-display">Nenhum relatório encontrado para este filtro.</p>
+                <p className="text-white/70 font-display">Nenhum relatório encontrado para este filtro.</p>
              </div>
            ) : (
              <AnimatePresence>
@@ -193,11 +193,11 @@ export default function Reports() {
                        <div className="space-y-1">
                           <h4 className="text-white font-bold group-hover:text-brand-blue transition-colors">{report.name}</h4>
                           <div className="flex items-center gap-3">
-                             <span className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+                             <span className="flex items-center gap-1.5 text-xs text-white/70 font-medium">
                                 <Clock className="w-3.5 h-3.5" /> {report.date}
                              </span>
                              <span className="w-1 h-1 bg-slate-700 rounded-full" />
-                             <span className="text-xs text-slate-500 font-medium">{report.size}</span>
+                             <span className="text-xs text-white/70 font-medium">{report.size}</span>
                              <div className="flex gap-2 ml-4">
                                 {report.tags.map(tag => <ReportChip key={tag} label={tag} />)}
                              </div>
@@ -206,10 +206,10 @@ export default function Reports() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                       <button className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100">
+                       <button className="p-2.5 rounded-xl bg-white/5 text-white/70 hover:text-white hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100">
                           <Download className="w-4 h-4" />
                        </button>
-                       <button className="p-2.5 rounded-xl bg-white/5 text-slate-500 hover:text-white transition-all">
+                       <button className="p-2.5 rounded-xl bg-white/5 text-white/70 hover:text-white transition-all">
                           <MoreVertical className="w-4 h-4" />
                        </button>
                        <ChevronRight className="w-5 h-5 text-slate-700 group-hover:text-brand-blue transition-all group-hover:translate-x-1" />
@@ -224,7 +224,7 @@ export default function Reports() {
                 <CheckCircle2 className="w-6 h-6 text-brand-blue shrink-0" />
                 <div className="flex-1">
                   <p className="text-white font-bold text-sm">Sincronização Ativa</p>
-                  <p className="text-xs text-slate-400">Seus relatórios são atualizados automaticamente a cada nova importação de dados.</p>
+                  <p className="text-xs text-white/80">Seus relatórios são atualizados automaticamente a cada nova importação de dados.</p>
                 </div>
                 <button className="text-brand-blue text-xs font-bold hover:underline">Configurar Auto-Sync</button>
              </div>
