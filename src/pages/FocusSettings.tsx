@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Globe, MapPin, X, Plus, ChevronDown, Check, 
   Search, Shield, Info, Building2, TrendingUp,
-  Loader2, ArrowRight, Calendar, UserCheck, Filter
+  Loader2, ArrowRight, Calendar, UserCheck, Filter,
+  Save, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
@@ -24,7 +25,15 @@ export default function FocusSettings() {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingCities, setLoadingCities] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const suggestionRef = useRef<HTMLDivElement>(null);
+
+  // Mostrar feedback de salvamento automático
+  const showSavedFeedback = (field: string) => {
+    setLastSaved(field);
+    setTimeout(() => setLastSaved(null), 2000);
+  };
 
   useEffect(() => {
     async function load() {
@@ -73,6 +82,7 @@ export default function FocusSettings() {
     const city = cityName.trim().toUpperCase();
     if (city && !cities.includes(city)) {
       setCities([...cities, city]);
+      showSavedFeedback('Cidade adicionada');
     }
     setCityInput('');
     setShowSuggestions(false);
@@ -80,32 +90,52 @@ export default function FocusSettings() {
 
   const removeCity = (cityToRemove: string) => {
     setCities(cities.filter(c => c !== cityToRemove));
+    showSavedFeedback('Cidade removida');
+  };
+
+  const handleManualSave = () => {
+    setSaving(true);
+    setTimeout(() => {
+      setSaving(false);
+      showSavedFeedback('Configurações salvas');
+    }, 800);
   };
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 pb-20">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
           <h1 className="text-4xl font-display font-bold tracking-tight text-white mb-2">Foco Econômico Regional</h1>
-          <p className="text-slate-400 font-sans">Defina os critérios globais que filtrarão todos os dados da plataforma.</p>
+          <p className="text-slate-400 font-sans">Configurações globais salvas automaticamente para toda a plataforma.</p>
         </div>
-        {(uf || apenasMei || dataInicio || dataFim) && (
+        <div className="flex items-center gap-3">
+          <AnimatePresence>
+            {lastSaved && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+                className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 text-xs font-bold"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" /> {lastSaved}
+              </motion.div>
+            )}
+          </AnimatePresence>
           <button 
-            onClick={clearPreferences}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-400/10 text-red-400 font-display font-bold text-sm border border-red-400/20 hover:bg-red-400/20 transition-all shadow-lg shadow-red-400/5"
+            onClick={handleManualSave}
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-brand-blue text-white font-display font-bold text-sm hover:scale-105 transition-all shadow-xl shadow-brand-blue/20 disabled:opacity-50"
           >
-            <X className="w-4 h-4" /> Limpar Todos os Filtros
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Salvar Alterações
           </button>
-        )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Coluna Principal: Localização e Filtros Avançados */}
         <div className="lg:col-span-8 space-y-6">
           
           {/* SEÇÃO 1: LOCALIZAÇÃO */}
-          <div className="glass-panel p-8 rounded-[2.5rem] space-y-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
+          <div className="glass-panel p-8 rounded-[2.5rem] space-y-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
               <Globe className="w-32 h-32 text-brand-blue" />
             </div>
             
@@ -114,34 +144,37 @@ export default function FocusSettings() {
                 <MapPin className="text-brand-blue w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-display font-bold text-white text-lg">Localização Prioritária</h3>
-                <p className="text-slate-500 text-sm">Estado e municípios de atuação.</p>
+                <h3 className="font-display font-bold text-white text-lg">Área de Atuação</h3>
+                <p className="text-slate-500 text-sm">Estado e municípios onde a inteligência será aplicada.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-              {/* Estado */}
               <div className="space-y-3">
                 <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  1. Selecione o Estado
+                  Estado Prioritário
                 </label>
                 <div className="relative">
                   <select
                     value={uf}
-                    onChange={e => { setUf(e.target.value); setCities([]); setCityInput(''); }}
+                    onChange={e => { 
+                      setUf(e.target.value); 
+                      setCities([]); 
+                      setCityInput(''); 
+                      showSavedFeedback('Estado alterado');
+                    }}
                     className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-6 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 transition-all [&>option]:text-black appearance-none cursor-pointer hover:bg-white/[0.08]"
                   >
-                    <option value="">Todo o Brasil (Nacional)</option>
+                    <option value="">Brasil Completo</option>
                     {UFS.map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
                   <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
                 </div>
               </div>
 
-              {/* Cidades */}
               <div className="space-y-3 relative" ref={suggestionRef}>
                 <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                  2. Adicionar Municípios
+                  Adicionar Cidades
                   {loadingCities && <Loader2 className="w-3 h-3 animate-spin text-brand-blue" />}
                 </label>
                 <div className="relative group">
@@ -154,7 +187,7 @@ export default function FocusSettings() {
                     value={cityInput}
                     onChange={e => setCityInput(e.target.value)}
                     disabled={!uf || loadingCities}
-                    placeholder={!uf ? "Selecione um estado primeiro" : loadingCities ? "Sincronizando..." : "Digite o nome da cidade..."}
+                    placeholder={!uf ? "Selecione o estado" : loadingCities ? "Sincronizando..." : "Digite para buscar..."}
                     className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/40 transition-all placeholder:text-slate-600 disabled:opacity-30"
                   />
                 </div>
@@ -163,9 +196,9 @@ export default function FocusSettings() {
                   {showSuggestions && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                      className="absolute z-50 left-0 right-0 top-full mt-2 bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,1)] overflow-hidden"
+                      className="absolute z-50 left-0 right-0 top-full mt-2 bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-[0_40px_100px_rgba(0,0,0,1)] overflow-hidden"
                     >
-                      <div className="max-h-[280px] overflow-y-auto">
+                      <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
                         {suggestions.map((s) => (
                           <button
                             key={s} onClick={() => handleAddCity(s)}
@@ -185,27 +218,39 @@ export default function FocusSettings() {
               </div>
             </div>
 
-            {/* Listagem de Cidades */}
             <AnimatePresence mode="wait">
               {uf && (
                 <motion.div
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="pt-6 border-t border-white/5 space-y-4"
                 >
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cidades Ativas ({cities.length})</p>
+                  <div className="flex justify-between items-center">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Cidades no Foco Ativo ({cities.length})</p>
+                    {cities.length > 0 && (
+                      <button 
+                        onClick={() => { setCities([]); showSavedFeedback('Cidades removidas'); }}
+                        className="text-[10px] text-slate-500 hover:text-red-400 transition-colors uppercase font-bold"
+                      >
+                        Limpar Cidades
+                      </button>
+                    )}
+                  </div>
                   <div className="flex flex-wrap gap-2.5">
                     {cities.length > 0 ? (
                       cities.map(c => (
                         <motion.span
                           key={c} layout initial={{ scale: 0.8 }} animate={{ scale: 1 }}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-xl text-xs font-bold uppercase tracking-wider group"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-purple/10 border border-brand-purple/20 text-brand-purple rounded-xl text-xs font-bold uppercase tracking-wider group hover:bg-brand-purple/20 transition-all"
                         >
                           {c}
-                          <button onClick={() => removeCity(c)} className="hover:text-white transition-colors"><X className="w-4 h-4" /></button>
+                          <button onClick={() => removeCity(c)} className="text-brand-purple/40 hover:text-white transition-colors"><X className="w-4 h-4" /></button>
                         </motion.span>
                       ))
                     ) : (
-                      <p className="text-xs text-slate-600 italic">Todo o estado de {uf} está sendo monitorado.</p>
+                      <div className="p-10 bg-white/[0.02] border border-dashed border-white/5 rounded-3xl w-full flex flex-col items-center justify-center text-slate-700">
+                        <MapPin className="w-8 h-8 mb-2 opacity-10" />
+                        <p className="text-xs italic">Nenhuma cidade específica. O foco será em todo o estado de {uf}.</p>
+                      </div>
                     )}
                   </div>
                 </motion.div>
@@ -213,146 +258,133 @@ export default function FocusSettings() {
             </AnimatePresence>
           </div>
 
-          {/* SEÇÃO 2: FILTROS GLOBAIS (NOVO) */}
+          {/* SEÇÃO 2: PREFERÊNCIAS AVANÇADAS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Filtro MEI */}
-            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6">
+            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6 group hover:border-emerald-500/20 transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <UserCheck className="text-emerald-400 w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-lg">Perfil de Empresa</h3>
-                  <p className="text-slate-500 text-sm">Filtre por porte empresarial.</p>
+                  <h3 className="font-display font-bold text-white text-lg">Perfil Empresarial</h3>
+                  <p className="text-slate-500 text-sm">Filtro por porte de negócio.</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.08] transition-all group">
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between hover:bg-white/[0.08] transition-all">
                 <div>
                   <p className="font-display font-bold text-white text-sm">Apenas MEI</p>
                   <p className="text-xs text-slate-500">Microempreendedores Individuais</p>
                 </div>
                 <button 
-                  onClick={() => setApenasMei(!apenasMei)}
+                  onClick={() => { 
+                    setApenasMei(!apenasMei); 
+                    showSavedFeedback(apenasMei ? 'Todos os portes' : 'Filtro MEI ativo');
+                  }}
                   className={cn(
                     "relative w-12 h-6 rounded-full transition-all duration-300",
                     apenasMei ? "bg-emerald-400" : "bg-white/10"
                   )}
                 >
                   <div className={cn(
-                    "absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-md",
+                    "absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 shadow-lg",
                     apenasMei ? "left-7" : "left-1"
                   )} />
                 </button>
               </div>
-              
-              <div className="flex gap-3 p-4 bg-emerald-400/5 rounded-2xl border border-emerald-400/10">
-                 <Info className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                   Quando ativo, todas as listagens e gráficos mostrarão exclusivamente dados de MEIs.
-                 </p>
-              </div>
             </div>
 
-            {/* Filtro de Período */}
-            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6">
+            <div className="glass-panel p-8 rounded-[2.5rem] space-y-6 group hover:border-amber-400/20 transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-amber-400/10 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Calendar className="text-amber-400 w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-white text-lg">Período de Abertura</h3>
-                  <p className="text-slate-500 text-sm">Defina o intervalo cronológico.</p>
+                  <h3 className="font-display font-bold text-white text-lg">Janela Temporal</h3>
+                  <p className="text-slate-500 text-sm">Filtrar por data de abertura.</p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Início</label>
-                    <input 
-                      type="date"
-                      value={dataInicio}
-                      onChange={e => setDataInicio(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Fim</label>
-                    <input 
-                      type="date"
-                      value={dataFim}
-                      onChange={e => setDataFim(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
-                    />
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Data Inicial</label>
+                  <input 
+                    type="date" value={dataInicio}
+                    onChange={e => { setDataInicio(e.target.value); showSavedFeedback('Início alterado'); }}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
+                  />
                 </div>
-                
-                {dataInicio && dataFim && (
-                  <button 
-                    onClick={() => { setDataInicio(''); setDataFim(''); }}
-                    className="text-[10px] text-slate-500 hover:text-amber-400 font-bold uppercase transition-colors"
-                  >
-                    Limpar Datas
-                  </button>
-                )}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-display font-black text-slate-500 uppercase tracking-widest">Data Final</label>
+                  <input 
+                    type="date" value={dataFim}
+                    onChange={e => { setDataFim(e.target.value); showSavedFeedback('Fim alterado'); }}
+                    className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-amber-400/40 [color-scheme:dark]"
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Coluna Lateral: Resumo */}
+        {/* COLUNA LATERAL */}
         <div className="lg:col-span-4 space-y-6">
           <div className="glass-panel p-8 rounded-[3rem] bg-gradient-to-br from-brand-blue/10 to-brand-purple/10 border-brand-blue/20 sticky top-28">
-             <div className="flex items-center gap-2 mb-8">
-                <Filter className="w-4 h-4 text-brand-blue" />
-                <h4 className="font-display font-bold text-white uppercase text-[10px] tracking-widest">Foco de Pesquisa Ativo</h4>
+             <div className="flex items-center gap-2 mb-8 border-b border-white/5 pb-6">
+                <Shield className="w-5 h-5 text-brand-blue" />
+                <div>
+                   <h4 className="font-display font-bold text-white text-xs uppercase tracking-widest">Foco Configurado</h4>
+                   <p className="text-[10px] text-slate-500 font-medium">Status da Filtragem Global</p>
+                </div>
              </div>
              
              <div className="space-y-8">
                 <div className="space-y-3">
-                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Território</p>
-                   <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-brand-blue/20 flex items-center justify-center text-brand-blue font-display font-bold text-lg">
+                   <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Localização Ativa</p>
+                   <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/5">
+                      <div className="w-12 h-12 rounded-xl bg-brand-blue text-white flex items-center justify-center font-display font-bold text-xl shadow-lg shadow-brand-blue/20">
                          {uf || 'BR'}
                       </div>
                       <div>
-                        <p className="text-lg font-display font-bold text-white leading-none">{uf ? 'Regional' : 'Nacional'}</p>
+                        <p className="text-lg font-display font-bold text-white leading-none">{uf ? 'Foco Regional' : 'Visão Brasil'}</p>
                         <p className="text-[11px] text-slate-500 font-medium mt-1">
-                          {cities.length > 0 ? `${cities.length} cidade(s)` : (uf ? 'Todas as cidades' : 'Brasil Completo')}
+                          {cities.length > 0 ? `${cities.length} município(s)` : (uf ? 'Todas as cidades do estado' : 'Sem restrição geográfica')}
                         </p>
                       </div>
                    </div>
                 </div>
 
-                <div className="space-y-6 pt-6 border-t border-white/5">
-                   <div className="flex justify-between items-center">
-                      <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Perfil</span>
-                      <span className={cn(
-                        "text-[10px] font-black uppercase px-2 py-1 rounded-md",
-                        apenasMei ? "bg-emerald-400/10 text-emerald-400" : "bg-white/5 text-slate-400"
-                      )}>{apenasMei ? 'Apenas MEI' : 'Todas as Empresas'}</span>
+                <div className="grid grid-cols-2 gap-4">
+                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-1">
+                      <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Porte</p>
+                      <p className={cn("text-xs font-bold", apenasMei ? "text-emerald-400" : "text-white")}>
+                        {apenasMei ? 'MEI' : 'TODOS'}
+                      </p>
                    </div>
-                   
-                   <div className="flex justify-between items-center">
-                      <span className="text-[10px] text-slate-500 uppercase font-black tracking-widest">Período</span>
-                      <span className={cn(
-                        "text-[10px] font-black uppercase px-2 py-1 rounded-md",
-                        dataInicio ? "bg-amber-400/10 text-amber-400" : "bg-white/5 text-slate-400"
-                      )}>{dataInicio ? `${new Date(dataInicio).getFullYear()} - ${new Date(dataFim).getFullYear()}` : 'Vitalício'}</span>
+                   <div className="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-1">
+                      <p className="text-[9px] text-slate-500 uppercase font-black tracking-widest">Período</p>
+                      <p className={cn("text-xs font-bold", dataInicio ? "text-amber-400" : "text-white")}>
+                        {dataInicio ? 'ATIVO' : 'LIVRE'}
+                      </p>
                    </div>
                 </div>
              </div>
              
-             <div className="mt-12 p-6 bg-white/3 rounded-[2.5rem] border border-white/5 space-y-5">
-                <div className="flex gap-4">
-                   <TrendingUp className="w-5 h-5 text-emerald-400 shrink-0" />
-                   <p className="text-[11px] text-slate-400 leading-relaxed font-medium">Os gráficos de evolução de aberturas e distribuição setorial seguirão estes filtros.</p>
+             <div className="mt-12 space-y-4">
+                <div className="flex gap-4 p-4 bg-white/3 rounded-2xl">
+                   <CheckCircle2 className="w-5 h-5 text-brand-blue shrink-0" />
+                   <p className="text-[11px] text-slate-400 leading-relaxed">
+                     As alterações são salvas automaticamente em seu navegador para garantir agilidade.
+                   </p>
                 </div>
-                <div className="flex gap-4">
-                   <Building2 className="w-5 h-5 text-brand-blue shrink-0" />
-                   <p className="text-[11px] text-slate-400 leading-relaxed font-medium">A exportação de dados e a malha societária serão restritas a este recorte.</p>
-                </div>
+                {(uf || apenasMei || dataInicio || dataFim) && (
+                  <button 
+                    onClick={clearPreferences}
+                    className="w-full py-4 rounded-2xl text-xs font-bold uppercase text-slate-500 border border-white/5 hover:bg-red-400/10 hover:text-red-400 transition-all"
+                  >
+                    Resetar Todas as Preferências
+                  </button>
+                )}
              </div>
           </div>
         </div>
