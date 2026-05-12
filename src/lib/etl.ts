@@ -60,7 +60,7 @@ export function transformarEmpresa(raw: any): Empresa {
     complemento: raw.complemento || undefined,
     bairro: raw.bairro || undefined,
     cep: raw.cep ? raw.cep.replace(/\D/g, '') : undefined,
-    ddd_telefone_1: raw.ddd_telefone_1 ? `${raw.ddd_telefone_1}${raw.telefone_1 || ''}` : undefined,
+    ddd_telefone_1: raw.ddd_telefone_1 ? `${raw.ddd_telefone_1}${raw.telefone_1 || ''}` : raw.ddd_telefone_1,
     email: raw.email || undefined,
     descricao_porte: raw.descricao_porte || undefined,
     opcao_pelo_mei: raw.opcao_pelo_mei === 'S' || raw.opcao_pelo_mei === true || String(raw.codigo_natureza_juridica) === '2135' || String(raw.natureza_juridica) === '2135',
@@ -68,6 +68,7 @@ export function transformarEmpresa(raw: any): Empresa {
     capital_social: raw.capital_social ? parseFloat(raw.capital_social) : undefined,
     score_empresarial: score,
     potencial_comercial: classificarPotencial(score),
+    socios: raw.qsa || raw.socios || undefined,
     fonte: raw.fonte || 'brasilio',
     importado_em: new Date().toISOString(),
   };
