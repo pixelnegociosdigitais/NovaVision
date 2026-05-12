@@ -40,6 +40,7 @@ export interface Empresa {
   tags?: string[];
   is_favorite?: boolean;
   observacoes?: string;
+  socios?: any[];
   created_at?: string;
   updated_at?: string;
   importado_em?: string;
