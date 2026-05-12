@@ -146,7 +146,14 @@ export default function Dashboard({ onSelectCompany }: DashboardProps) {
       const applyPref = (q: any) => {
         let query = q;
         if (uf) query = query.eq('uf', uf.toUpperCase());
-        if (cities.length > 0) query = query.in('municipio', cities.map(c => c.toUpperCase()));
+        
+        // Se houver cidades filtradas, incluímos também as que estão com município 'null' 
+        // (indicando que acabaram de ser baixadas e ainda não foram processadas)
+        if (cities.length > 0) {
+          const cityList = cities.map(c => c.toUpperCase());
+          query = query.or(`municipio.in.(${cityList.join(',')}),municipio.is.null`);
+        }
+        
         if (eixos && eixos.length > 0) query = query.in('eixo_economico', eixos);
         if (apenasMei) query = query.eq('opcao_pelo_mei', true);
         if (dataInicio) query = query.gte('data_abertura', dataInicio);
