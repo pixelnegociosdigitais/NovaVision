@@ -22,13 +22,18 @@ export default function SyncMonitor() {
   }, []);
 
   async function fetchStats() {
-    const { count: total } = await supabase.from('empresas').select('*', { count: 'exact', head: true });
-    const { count: enriched } = await supabase.from('empresas').select('*', { count: 'exact', head: true }).not('municipio', 'is', null);
+    const { count: total, error: e1 } = await supabase.from('empresas').select('*', { count: 'exact', head: true });
+    const { count: enriched, error: e2 } = await supabase.from('empresas').select('*', { count: 'exact', head: true }).not('municipio', 'is', null);
     
+    if (e1 || e2) console.error('Erro ao buscar stats:', e1 || e2);
+
+    const totalVal = total || 0;
+    const enrichedVal = enriched || 0;
+
     setStats({
-      total: total || 0,
-      enriched: enriched || 0,
-      pending: (total || 0) - (enriched || 0)
+      total: totalVal,
+      enriched: enrichedVal,
+      pending: Math.max(0, totalVal - enrichedVal)
     });
   }
 
