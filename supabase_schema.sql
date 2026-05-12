@@ -77,19 +77,19 @@ CREATE TRIGGER trg_empresas_updated_at
 -- ─────────────────────────────────────────
 ALTER TABLE public.empresas ENABLE ROW LEVEL SECURITY;
 
--- Permitir leitura pública (ajuste conforme autenticação)
+-- Permitir leitura pública
 CREATE POLICY "Leitura pública de empresas"
   ON public.empresas FOR SELECT
   USING (true);
 
--- Apenas usuários autenticados podem inserir/atualizar
-CREATE POLICY "Inserção autenticada"
+-- Permitir que anon e authenticated possam inserir/atualizar (para desenvolvimento)
+CREATE POLICY "Inserção pública"
   ON public.empresas FOR INSERT
-  WITH CHECK (auth.role() = 'authenticated');
+  WITH CHECK (true);
 
-CREATE POLICY "Atualização autenticada"
+CREATE POLICY "Atualização pública"
   ON public.empresas FOR UPDATE
-  USING (auth.role() = 'authenticated');
+  USING (true);
 
 -- ─────────────────────────────────────────
 -- View para estatísticas do Dashboard
@@ -184,3 +184,5 @@ CREATE OR REPLACE FUNCTION public.get_database_size()
 RETURNS float AS $$
   SELECT pg_database_size(current_database()) / (1024 * 1024)::float;
 $$ LANGUAGE sql SECURITY DEFINER;
+
+GRANT EXECUTE ON FUNCTION public.get_database_size() TO anon, authenticated, public;

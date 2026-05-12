@@ -137,8 +137,12 @@ export async function salvarEmpresasNoSupabase(empresas: Empresa[]): Promise<{ s
   for (let i = 0; i < empresas.length; i += BATCH_SIZE) {
     const lote = empresas.slice(i, i + BATCH_SIZE);
     const { error } = await supabase.from('empresas').upsert(lote, { onConflict: 'cnpj' });
-    if (error) erros.push(error.message);
-    else salvos += lote.length;
+    if (error) {
+      erros.push(`${error.message} (Code: ${error.code})`);
+      console.error('Erro no upsert Supabase:', error);
+    } else {
+      salvos += lote.length;
+    }
   }
   return { salvos, erros };
 }
@@ -312,8 +316,11 @@ export async function executarETL(config: ETLConfig, onLog: (m: string) => void)
     result.erros = erros;
     result.empresas = empresas;
     onLog(`✅ Sucesso: ${salvos} empresas sincronizadas.`);
+    if (erros.length > 0) {
+      onLog(`⚠️ ${erros.length} erros detectados durante a sincronização.`);
+    }
   } catch (err: any) {
-    onLog(`❌ Erro: ${err.message}`);
+    onLog(`❌ Erro fatal: ${err.message}`);
     result.erros.push(err.message);
   }
   return result;

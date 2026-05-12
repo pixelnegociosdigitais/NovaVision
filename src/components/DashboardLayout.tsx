@@ -15,6 +15,7 @@ import {
   User,
   Download,
   MapPin,
+  Activity,
   X
 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -69,6 +70,7 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
     { id: 'team', icon: Users, label: 'Equipe' },
     { id: 'admin', icon: ShieldCheck, label: 'Administrativo' },
     { id: 'import', icon: Download, label: 'Importar Dados' },
+    { id: 'monitor', icon: Activity, label: 'Monitor de Sinc' },
     { id: 'plans', icon: CreditCard, label: 'Planos' },
   ];
 
