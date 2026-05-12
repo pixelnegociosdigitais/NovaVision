@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 
 interface Log {
   id: string;
-  criado_em: string;
+  created_at: string;
   acao: string;
   entidade: string;
   detalhes: any;
@@ -41,10 +41,11 @@ export default function SyncMonitor() {
     const { data, error } = await supabase
       .from('activity_logs')
       .select('*')
-      .order('criado_em', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(20);
 
-    if (!error) setLogs(data);
+    if (error) console.error('Erro nos logs:', error);
+    if (!error) setLogs(data || []);
     setLoading(false);
   }
 
@@ -122,7 +123,7 @@ export default function SyncMonitor() {
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-slate-600">
-                    {new Date(log.criado_em).toLocaleString('pt-BR')}
+                    {new Date(log.created_at).toLocaleString('pt-BR')}
                   </td>
                   <td className="px-6 py-4 font-medium text-slate-900">{log.acao}</td>
                   <td className="px-6 py-4 text-slate-500">{log.entidade}</td>
