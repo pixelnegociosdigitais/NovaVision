@@ -104,6 +104,7 @@ export default function CompanyDetails({ empresa: empresaProp, onBack }: Company
         email: raw.email || prev.email,
         descricao_porte: raw.descricao_porte || prev.descricao_porte,
         capital_social: raw.capital_social || prev.capital_social,
+        socios: raw.qsa || prev.socios,
       } : prev);
     } catch (e) {
       // silencioso — usa dados do banco
@@ -328,23 +329,63 @@ export default function CompanyDetails({ empresa: empresaProp, onBack }: Company
 
             <div className="glass-panel p-7 rounded-3xl space-y-1">
               <h3 className="font-display text-base font-bold text-white mb-4 flex items-center gap-2">
-                <Phone className="w-4 h-4 text-brand-purple" /> Contato
+                <Phone className="w-4 h-4 text-brand-purple" /> Contato Direto
               </h3>
-              <InfoRow label="Telefone" value={empresa.ddd_telefone_1} icon={Phone} />
-              <InfoRow label="E-mail"   value={empresa.email}           icon={Mail}  />
-              <InfoRow label="MEI"
-                value={empresa.opcao_pelo_mei ? 'Sim — Optante pelo MEI' : empresa.opcao_pelo_mei === false ? 'Não' : undefined}
-                icon={User}
-              />
-              <InfoRow label="Simples Nacional"
-                value={empresa.opcao_pelo_simples ? 'Sim — Optante pelo Simples' : empresa.opcao_pelo_simples === false ? 'Não' : undefined}
-                icon={ShieldCheck}
-              />
+              {empresa.ddd_telefone_1 ? (
+                <a href={`tel:${empresa.ddd_telefone_1.replace(/\D/g, '')}`} className="block">
+                  <InfoRow label="Telefone" value={empresa.ddd_telefone_1} icon={Phone} />
+                </a>
+              ) : (
+                <InfoRow label="Telefone" value={null} icon={Phone} />
+              )}
+              {empresa.email ? (
+                <a href={`mailto:${empresa.email}`} className="block">
+                  <InfoRow label="E-mail Corporativo" value={empresa.email} icon={Mail} />
+                </a>
+              ) : (
+                <InfoRow label="E-mail Corporativo" value={null} icon={Mail} />
+              )}
+              
+              <div className="pt-2">
+                <InfoRow label="MEI"
+                  value={empresa.opcao_pelo_mei ? 'Sim — Optante pelo MEI' : empresa.opcao_pelo_mei === false ? 'Não' : undefined}
+                  icon={User}
+                />
+                <InfoRow label="Simples Nacional"
+                  value={empresa.opcao_pelo_simples ? 'Sim — Optante pelo Simples' : empresa.opcao_pelo_simples === false ? 'Não' : undefined}
+                  icon={ShieldCheck}
+                />
+              </div>
               {!empresa.ddd_telefone_1 && !empresa.email && (
                 <p className="text-slate-600 text-sm text-center py-4">Dados de contato não disponíveis</p>
               )}
             </div>
           </div>
+
+          {/* Quadro Societário */}
+          {empresa.socios && empresa.socios.length > 0 && (
+            <div className="glass-panel p-7 rounded-3xl space-y-4">
+              <h3 className="font-display text-base font-bold text-white flex items-center gap-2">
+                <Users className="w-4 h-4 text-brand-blue" /> Quadro Societário (QSA)
+                <span className="text-[10px] font-bold text-slate-500 bg-white/5 px-2 py-0.5 rounded-lg">
+                  {empresa.socios.length}
+                </span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {empresa.socios.map((socio, i) => (
+                  <div key={i} className="flex items-center gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-brand-blue/30 transition-all">
+                    <div className="w-10 h-10 rounded-xl bg-brand-blue/10 flex items-center justify-center shrink-0">
+                      <User className="w-5 h-5 text-brand-blue" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-slate-200 line-clamp-1 uppercase">{socio.nome_socio || socio.nome}</p>
+                      <p className="text-[10px] font-display font-bold text-slate-500 uppercase tracking-widest">{socio.qualificacao_socio || socio.qualificacao || 'Sócio'}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* CNAEs Secundários */}
           {empresa.cnaes_secundarios && empresa.cnaes_secundarios.length > 0 && (
