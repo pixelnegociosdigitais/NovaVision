@@ -74,7 +74,9 @@ export default function SyncMonitor() {
             </div>
             <div>
               <p className="text-sm text-slate-500">Total no Banco</p>
-              <p className="text-2xl font-bold">{stats.total.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-slate-900">
+                {stats.total !== null ? stats.total.toLocaleString() : '0'}
+              </p>
             </div>
           </div>
         </div>
