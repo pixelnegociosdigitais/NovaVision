@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   LayoutDashboard, 
-  BarChart3, 
   Building2, 
   Bell, 
   FileText, 
@@ -63,7 +62,6 @@ export default function DashboardLayout({ children, currentPage, setCurrentPage 
     { id: 'focus', icon: MapPin, label: 'Região de Foco' },
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'companies', icon: Building2, label: 'Empresas' },
-    { id: 'analytics', icon: BarChart3, label: 'Analytics' },
     { id: 'alerts', icon: Bell, label: 'Central de Alertas' },
     { id: 'reports', icon: FileText, label: 'Relatórios' },
     { id: 'map', icon: MapIcon, label: 'Mapa Econômico' },
