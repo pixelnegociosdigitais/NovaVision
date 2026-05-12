@@ -34,7 +34,6 @@ export default function App() {
     switch (currentPage) {
       case 'dashboard': return <Dashboard onSelectCompany={handleSelectCompany} />;
       case 'companies': return <Companies onSelectCompany={handleSelectCompany} />;
-      case 'alerts':    return <Alerts />;
       case 'reports':   return <Reports />;
       case 'map':       return <EconomicMap />;
       case 'team':      return <Team />;
